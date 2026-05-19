@@ -3,10 +3,83 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataPenjualan;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class PenjualanController extends Controller
 {
+    public function index(Request $request): Response
+    {
+        $produk = $request->query('produk');
+        $bulan = $request->query('bulan');
+        $tahun = $request->query('tahun');
+        $query = DataPenjualan::query();
+
+        if ($produk) {
+            $query->where('nama_produk', $produk);
+        }
+
+        if ($bulan) {
+            $query->whereMonth('tanggal', (int) $bulan);
+        }
+
+        if ($tahun) {
+            $query->whereYear('tanggal', (int) $tahun);
+        }
+
+        $penjualan = $query
+            ->orderByDesc('tanggal')
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn ($row) => [
+                'id' => $row->penjualan_id,
+                'tanggal' => $row->tanggal?->toDateString(),
+                'produk' => $row->nama_produk,
+                'jumlah' => (int) $row->jumlah_terjual,
+            ]);
+
+        return Inertia::render('datapenjualan', [
+            'penjualan' => $penjualan,
+            'produkOptions' => self::produkOptions(),
+            'bulanOptions' => self::bulanOptions(),
+            'tahunOptions' => self::tahunOptions(),
+            'filters' => [
+                'produk' => $produk,
+                'bulan' => $bulan,
+                'tahun' => $tahun,
+            ],
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'tanggal' => ['required', 'date'],
+            'produk' => ['required', 'string', 'max:255'],
+            'jumlah' => ['required', 'integer', 'min:1'],
+        ]);
+
+        DataPenjualan::create([
+            'penjualan_id' => (string) Str::uuid(),
+            'tanggal' => $validated['tanggal'],
+            'nama_produk' => $validated['produk'],
+            'jumlah_terjual' => $validated['jumlah'],
+        ]);
+
+        return redirect()->back();
+    }
+
+    public function destroy(DataPenjualan $penjualan): RedirectResponse
+    {
+        $penjualan->delete();
+
+        return redirect()->back();
+    }
+
     public static function total(): int
     {
         return DataPenjualan::count();
@@ -112,6 +185,34 @@ class PenjualanController extends Controller
             ->orderBy('tahun')
             ->pluck('tahun')
             ->map(fn ($tahun) => (string) $tahun)
+            ->all();
+    }
+
+    public static function produkOptions(): array
+    {
+        return DataPenjualan::query()
+            ->select('nama_produk')
+            ->distinct()
+            ->orderBy('nama_produk')
+            ->pluck('nama_produk')
+            ->all();
+    }
+
+    public static function bulanOptions(): array
+    {
+        $driver = DB::connection()->getDriverName();
+        $monthExpression = match ($driver) {
+            'pgsql' => 'EXTRACT(MONTH FROM tanggal)',
+            'sqlite' => "strftime('%m', tanggal)",
+            default => 'MONTH(tanggal)',
+        };
+
+        return DataPenjualan::query()
+            ->select(DB::raw("{$monthExpression} as bulan"))
+            ->distinct()
+            ->orderBy('bulan')
+            ->pluck('bulan')
+            ->map(fn ($bulan) => str_pad((string) $bulan, 2, '0', STR_PAD_LEFT))
             ->all();
     }
 }

@@ -5,6 +5,8 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\PenjualanController;
+use App\Http\Controllers\PeramalanController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -19,11 +21,20 @@ Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')-
 Route::get('dashboard', DashboardController::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
-Route::get('datapenjualan', function () {
-    return Inertia::render('datapenjualan');
-})->middleware(['auth', 'verified'])->name('datapenjualan');
-Route::get('dataparamalan', function () {
-    return Inertia::render('dataparamalan');
-})->middleware(['auth', 'verified'])->name('dataparamalan');
+Route::get('datapenjualan', [PenjualanController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('datapenjualan');
+Route::post('datapenjualan', [PenjualanController::class, 'store'])
+    ->middleware(['auth', 'verified'])
+    ->name('datapenjualan.store');
+Route::delete('datapenjualan/{penjualan}', [PenjualanController::class, 'destroy'])
+    ->middleware(['auth', 'verified'])
+    ->name('datapenjualan.destroy');
+Route::get('dataperamalan', [PeramalanController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dataperamalan');
+Route::delete('dataperamalan/{peramalan}', [PeramalanController::class, 'destroy'])
+    ->middleware(['auth', 'verified'])
+    ->name('dataperamalan.destroy');
 
 require __DIR__.'/settings.php';
