@@ -365,7 +365,6 @@ export default function DataPeramalan() {
       <HitungPeramalanModal
         isOpen={showHitungModal}
         onClose={() => setShowHitungModal(false)}
-        onSubmit={() => setShowHitungModal(false)}
       />
     </AppLayout>
   );

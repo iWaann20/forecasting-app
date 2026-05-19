@@ -89,11 +89,13 @@ class PeramalanService
 		$forecasts = $this->sesService->generate($actuals, $bestAlpha);
 		$nextForecast = $this->sesService->forecastNext($actuals, $bestAlpha);
 		$evaluasi = $this->evaluasiService->evaluate($actuals, $forecasts);
+		$forecastStart = $end->copy()->addMonthNoOverflow()->startOfMonth();
+		$forecastEnd = $end->copy()->addMonthNoOverflow()->endOfMonth();
 
 		return DataPeramalan::create([
 			'peramalan_id' => (string) Str::uuid(),
-			'periode_awal' => $start->toDateString(),
-			'periode_akhir' => $end->toDateString(),
+			'periode_awal' => $forecastStart->toDateString(),
+			'periode_akhir' => $forecastEnd->toDateString(),
 			'nama_produk' => $produk,
 			'nilai_peramalan' => $nextForecast !== null ? (int) round($nextForecast) : 0,
 			'alpha' => $bestAlpha,
