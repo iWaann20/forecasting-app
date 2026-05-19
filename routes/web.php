@@ -33,6 +33,9 @@ Route::delete('datapenjualan/{penjualan}', [PenjualanController::class, 'destroy
 Route::get('dataperamalan', [PeramalanController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dataperamalan');
+Route::post('dataperamalan/hitung', [PeramalanController::class, 'hitung'])
+    ->middleware(['auth', 'verified'])
+    ->name('dataperamalan.hitung');
 Route::delete('dataperamalan/{peramalan}', [PeramalanController::class, 'destroy'])
     ->middleware(['auth', 'verified'])
     ->name('dataperamalan.destroy');

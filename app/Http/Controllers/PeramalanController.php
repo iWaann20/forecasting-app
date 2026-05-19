@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataPeramalan;
+use App\Services\Peramalan\PeramalanService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -57,6 +58,21 @@ class PeramalanController extends Controller
     public function destroy(DataPeramalan $peramalan): RedirectResponse
     {
         $peramalan->delete();
+
+        return redirect()->back();
+    }
+
+    public function hitung(Request $request, PeramalanService $peramalanService): RedirectResponse
+    {
+        $validated = $request->validate([
+            'periode_awal' => ['required', 'date'],
+            'periode_akhir' => ['required', 'date', 'after_or_equal:periode_awal'],
+        ]);
+
+        $peramalanService->hitungSemua(
+            $validated['periode_awal'],
+            $validated['periode_akhir'],
+        );
 
         return redirect()->back();
     }

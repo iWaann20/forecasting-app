@@ -241,7 +241,10 @@ export default function DataPenjualan() {
                 </SelectContent>
               </Select>
             </div>
-            <Button className="h-9" onClick={() => setShowTambahModal(true)}>
+            <Button
+              className="h-9 cursor-pointer"
+              onClick={() => setShowTambahModal(true)}
+            >
               Tambah
             </Button>
           </div>

@@ -1,5 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import Swal from 'sweetalert2';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,6 +16,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/app-layout';
+import HitungPeramalanModal from '@/pages/modal/hitungperamalan';
 import { dataperamalan } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
 
@@ -60,6 +62,7 @@ type DataPeramalanProps = {
 export default function DataPeramalan() {
   const { peramalan, produkOptions, bulanOptions, tahunOptions, filters } =
     usePage<DataPeramalanProps>().props;
+  const [showHitungModal, setShowHitungModal] = useState(false);
 
   const formatPeriode = (value: string | null) => {
     if (!value) {
@@ -254,7 +257,12 @@ export default function DataPeramalan() {
               </Select>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Button className="h-9">Hitung Peramalan</Button>
+              <Button
+                className="h-9 cursor-pointer"
+                onClick={() => setShowHitungModal(true)}
+              >
+                Hitung Peramalan
+              </Button>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="outline" className="h-9">
@@ -354,6 +362,11 @@ export default function DataPeramalan() {
           )}
         </div>
       </div>
+      <HitungPeramalanModal
+        isOpen={showHitungModal}
+        onClose={() => setShowHitungModal(false)}
+        onSubmit={() => setShowHitungModal(false)}
+      />
     </AppLayout>
   );
 }
