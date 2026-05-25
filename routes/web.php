@@ -36,6 +36,12 @@ Route::get('dataperamalan', [PeramalanController::class, 'index'])
 Route::post('dataperamalan/hitung', [PeramalanController::class, 'hitung'])
     ->middleware(['auth', 'verified'])
     ->name('dataperamalan.hitung');
+Route::post('dataperamalan/preview/simpan', [PeramalanController::class, 'simpan'])
+    ->middleware(['auth', 'verified'])
+    ->name('dataperamalan.preview.simpan');
+Route::post('dataperamalan/preview/batal', [PeramalanController::class, 'batal'])
+    ->middleware(['auth', 'verified'])
+    ->name('dataperamalan.preview.batal');
 Route::delete('dataperamalan/{peramalan}', [PeramalanController::class, 'destroy'])
     ->middleware(['auth', 'verified'])
     ->name('dataperamalan.destroy');

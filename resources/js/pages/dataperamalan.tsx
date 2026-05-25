@@ -1,6 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/app-layout';
 import HitungPeramalanModal from '@/pages/modal/hitungperamalan';
+import PreviewPeramalanModal from '@/pages/modal/previewperamalan';
 import { dataperamalan } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
 
@@ -52,6 +53,7 @@ type DataPeramalanProps = {
   produkOptions: string[];
   bulanOptions: string[];
   tahunOptions: string[];
+  preview: PreviewData | null;
   filters: {
     produk?: string | null;
     bulan?: string | null;
@@ -59,10 +61,38 @@ type DataPeramalanProps = {
   };
 };
 
+type PreviewItem = {
+  peramalan_id: string;
+  periode_awal: string;
+  periode_akhir: string;
+  nama_produk: string;
+  nilai_peramalan: number;
+  alpha: number;
+  mad: number | null;
+  mse: number | null;
+};
+
+type PreviewData = {
+  periode_awal: string;
+  periode_akhir: string;
+  items: PreviewItem[];
+};
+
 export default function DataPeramalan() {
-  const { peramalan, produkOptions, bulanOptions, tahunOptions, filters } =
-    usePage<DataPeramalanProps>().props;
+  const {
+    peramalan,
+    produkOptions,
+    bulanOptions,
+    tahunOptions,
+    filters,
+    preview,
+  } = usePage<DataPeramalanProps>().props;
   const [showHitungModal, setShowHitungModal] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(Boolean(preview));
+
+  useEffect(() => {
+    setShowPreviewModal(Boolean(preview));
+  }, [preview]);
 
   const formatPeriode = (value: string | null) => {
     if (!value) {
@@ -164,6 +194,37 @@ export default function DataPeramalan() {
         });
       },
     });
+  };
+
+  const handlePreviewCancel = () => {
+    router.post(
+      '/dataperamalan/preview/batal',
+      {},
+      {
+        preserveScroll: true,
+        onSuccess: () => setShowPreviewModal(false),
+      },
+    );
+  };
+
+  const handlePreviewSave = () => {
+    router.post(
+      '/dataperamalan/preview/simpan',
+      {},
+      {
+        preserveScroll: true,
+        onSuccess: () => {
+          setShowPreviewModal(false);
+          void Swal.fire({
+            icon: 'success',
+            title: 'Tersimpan',
+            text: 'Data peramalan berhasil disimpan.',
+            timer: 1500,
+            showConfirmButton: false,
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -365,6 +426,12 @@ export default function DataPeramalan() {
       <HitungPeramalanModal
         isOpen={showHitungModal}
         onClose={() => setShowHitungModal(false)}
+      />
+      <PreviewPeramalanModal
+        isOpen={showPreviewModal}
+        preview={preview}
+        onClose={handlePreviewCancel}
+        onSave={handlePreviewSave}
       />
     </AppLayout>
   );

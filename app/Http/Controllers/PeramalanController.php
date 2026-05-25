@@ -17,6 +17,7 @@ class PeramalanController extends Controller
         $produk = $request->query('produk');
         $bulan = $request->query('bulan');
         $tahun = $request->query('tahun');
+        $preview = $request->session()->get('peramalan_preview');
         $query = DataPeramalan::query();
 
         if ($produk) {
@@ -47,6 +48,7 @@ class PeramalanController extends Controller
             'produkOptions' => self::produkOptions(),
             'bulanOptions' => self::bulanOptions(),
             'tahunOptions' => self::tahunOptions(),
+            'preview' => $preview,
             'filters' => [
                 'produk' => $produk,
                 'bulan' => $bulan,
@@ -69,12 +71,35 @@ class PeramalanController extends Controller
             'periode_akhir' => ['required', 'date', 'after_or_equal:periode_awal'],
         ]);
 
-        $peramalanService->hitungSemua(
+        $preview = $peramalanService->hitungSemuaPreview(
             $validated['periode_awal'],
             $validated['periode_akhir'],
         );
 
-        return redirect()->back();
+        $request->session()->put('peramalan_preview', $preview);
+
+        return redirect()->route('dataperamalan');
+    }
+
+    public function simpan(Request $request, PeramalanService $peramalanService): RedirectResponse
+    {
+        $preview = $request->session()->get('peramalan_preview');
+
+        if (! is_array($preview) || empty($preview['items'])) {
+            return redirect()->route('dataperamalan');
+        }
+
+        $peramalanService->simpanHasil($preview['items']);
+        $request->session()->forget('peramalan_preview');
+
+        return redirect()->route('dataperamalan');
+    }
+
+    public function batal(Request $request): RedirectResponse
+    {
+        $request->session()->forget('peramalan_preview');
+
+        return redirect()->route('dataperamalan');
     }
 
     public static function total(): int

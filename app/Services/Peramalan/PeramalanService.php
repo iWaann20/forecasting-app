@@ -20,28 +20,55 @@ class PeramalanService
 	) {}
 
 	/**
-	 * @return array<int, DataPeramalan>
+	 * @return array{periode_awal: string, periode_akhir: string, items: array<int, array<string, mixed>>}
 	 */
-	public function hitungSemua(
+	public function hitungSemuaPreview(
 		string $periodeAwal,
 		string $periodeAkhir,
 	): array {
 		$start = Carbon::parse($periodeAwal)->startOfMonth();
 		$end = Carbon::parse($periodeAkhir)->endOfMonth();
+		$forecastStart = $end->copy()->addMonthNoOverflow()->startOfMonth();
+		$forecastEnd = $end->copy()->addMonthNoOverflow()->endOfMonth();
 		$results = [];
 
 		foreach ($this->produkList() as $produk) {
-			$results[] = $this->hitungProduk($produk, $start, $end);
+			$results[] = $this->hitungProdukPreview(
+				$produk,
+				$start,
+				$end,
+				$forecastStart,
+				$forecastEnd,
+			);
 		}
 
-		return $results;
+		return [
+			'periode_awal' => $forecastStart->toDateString(),
+			'periode_akhir' => $forecastEnd->toDateString(),
+			'items' => $results,
+		];
 	}
 
 	/**
-	 * @return DataPeramalan
+	 * @param array<int, array<string, mixed>> $items
 	 */
-	private function hitungProduk(string $produk, Carbon $start, Carbon $end): DataPeramalan
+	public function simpanHasil(array $items): void
 	{
+		foreach ($items as $item) {
+			DataPeramalan::create($item);
+		}
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	private function hitungProdukPreview(
+		string $produk,
+		Carbon $start,
+		Carbon $end,
+		Carbon $forecastStart,
+		Carbon $forecastEnd,
+	): array {
 		$periodeList = $this->buildPeriodeList($start, $end);
 		$actuals = $this->loadActuals($produk, $start, $end, $periodeList);
 
@@ -89,10 +116,8 @@ class PeramalanService
 		$forecasts = $this->sesService->generate($actuals, $bestAlpha);
 		$nextForecast = $this->sesService->forecastNext($actuals, $bestAlpha);
 		$evaluasi = $this->evaluasiService->evaluate($actuals, $forecasts);
-		$forecastStart = $end->copy()->addMonthNoOverflow()->startOfMonth();
-		$forecastEnd = $end->copy()->addMonthNoOverflow()->endOfMonth();
 
-		return DataPeramalan::create([
+		return [
 			'peramalan_id' => (string) Str::uuid(),
 			'periode_awal' => $forecastStart->toDateString(),
 			'periode_akhir' => $forecastEnd->toDateString(),
@@ -101,7 +126,7 @@ class PeramalanService
 			'alpha' => $bestAlpha,
 			'mad' => $evaluasi['mad'],
 			'mse' => $evaluasi['mse'],
-		]);
+		];
 	}
 
 	/**

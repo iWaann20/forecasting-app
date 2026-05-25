@@ -1,7 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { Calendar } from 'lucide-react';
 import { type FormEvent, useCallback, useRef } from 'react';
-import Swal from 'sweetalert2';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -41,13 +40,6 @@ export default function HitungPeramalanModal({ isOpen, onClose }: Props) {
       onSuccess: () => {
         reset();
         onClose();
-        void Swal.fire({
-          icon: 'success',
-          title: 'Berhasil',
-          text: 'Peramalan berhasil dihitung.',
-          timer: 1500,
-          showConfirmButton: false,
-        });
       },
     });
   };
