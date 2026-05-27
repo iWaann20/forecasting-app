@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DataPeramalan;
 use App\Services\Peramalan\PeramalanService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,7 @@ class PeramalanController extends Controller
         $bulan = $request->query('bulan');
         $tahun = $request->query('tahun');
         $preview = $request->session()->get('peramalan_preview');
+        $cetakPreview = $request->session()->get('peramalan_cetak_preview');
         $query = DataPeramalan::query();
 
         if ($produk) {
@@ -49,6 +51,7 @@ class PeramalanController extends Controller
             'bulanOptions' => self::bulanOptions(),
             'tahunOptions' => self::tahunOptions(),
             'preview' => $preview,
+            'cetakPreview' => $cetakPreview,
             'filters' => [
                 'produk' => $produk,
                 'bulan' => $bulan,
@@ -100,6 +103,122 @@ class PeramalanController extends Controller
         $request->session()->forget('peramalan_preview');
 
         return redirect()->route('dataperamalan');
+    }
+
+    public function cetakPreview(Request $request): RedirectResponse
+    {
+        [$produk, $bulan, $tahun] = $this->extractFilters($request);
+        $query = DataPeramalan::query();
+
+        if ($produk) {
+            $query->where('nama_produk', $produk);
+        }
+
+        if ($bulan) {
+            $query->whereMonth('periode_awal', (int) $bulan);
+        }
+
+        if ($tahun) {
+            $query->whereYear('periode_awal', (int) $tahun);
+        }
+
+        $items = $query
+            ->orderByDesc('periode_awal')
+            ->get()
+            ->map(fn ($row) => [
+                'id' => $row->peramalan_id,
+                'periode' => $row->periode_awal?->format('Y-m'),
+                'produk' => $row->nama_produk,
+                'alpha' => $row->alpha !== null ? (float) $row->alpha : null,
+                'mse' => $row->mse !== null ? (float) $row->mse : null,
+                'mad' => $row->mad !== null ? (float) $row->mad : null,
+                'nilai' => (int) $row->nilai_peramalan,
+            ])
+            ->all();
+
+        $request->session()->put('peramalan_cetak_preview', [
+            'filters' => [
+                'produk' => $produk,
+                'bulan' => $bulan,
+                'tahun' => $tahun,
+            ],
+            'items' => $items,
+        ]);
+
+        return redirect()->route('dataperamalan');
+    }
+
+    public function cetakBatal(Request $request): RedirectResponse
+    {
+        $request->session()->forget('peramalan_cetak_preview');
+
+        return redirect()->route('dataperamalan');
+    }
+
+    public function cetak(Request $request)
+    {
+        $preview = $request->session()->get('peramalan_cetak_preview');
+        $filters = is_array($preview) ? ($preview['filters'] ?? []) : [];
+        $items = is_array($preview) ? ($preview['items'] ?? []) : [];
+
+        if (empty($items)) {
+            [$produk, $bulan, $tahun] = $this->extractFilters($request);
+            $filters = [
+                'produk' => $produk,
+                'bulan' => $bulan,
+                'tahun' => $tahun,
+            ];
+            $items = $this->buildCetakItems($produk, $bulan, $tahun);
+        }
+
+        $pdf = Pdf::loadView('prints.peramalan', [
+            'title' => 'Laporan Peramalan',
+            'filters' => $filters,
+            'items' => $items,
+            'logoPath' => public_path('images/cv-anugerah-ajitama.png'),
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->stream('laporan-peramalan.pdf');
+    }
+
+    private function extractFilters(Request $request): array
+    {
+        $produk = $request->input('produk', $request->query('produk'));
+        $bulan = $request->input('bulan', $request->query('bulan'));
+        $tahun = $request->input('tahun', $request->query('tahun'));
+
+        return [$produk, $bulan, $tahun];
+    }
+
+    private function buildCetakItems(?string $produk, ?string $bulan, ?string $tahun): array
+    {
+        $query = DataPeramalan::query();
+
+        if ($produk) {
+            $query->where('nama_produk', $produk);
+        }
+
+        if ($bulan) {
+            $query->whereMonth('periode_awal', (int) $bulan);
+        }
+
+        if ($tahun) {
+            $query->whereYear('periode_awal', (int) $tahun);
+        }
+
+        return $query
+            ->orderByDesc('periode_awal')
+            ->get()
+            ->map(fn ($row) => [
+                'id' => $row->peramalan_id,
+                'periode' => $row->periode_awal?->format('Y-m'),
+                'produk' => $row->nama_produk,
+                'alpha' => $row->alpha !== null ? (float) $row->alpha : null,
+                'mse' => $row->mse !== null ? (float) $row->mse : null,
+                'mad' => $row->mad !== null ? (float) $row->mad : null,
+                'nilai' => (int) $row->nilai_peramalan,
+            ])
+            ->all();
     }
 
     public static function total(): int

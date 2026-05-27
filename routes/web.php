@@ -27,6 +27,9 @@ Route::get('datapenjualan', [PenjualanController::class, 'index'])
 Route::post('datapenjualan', [PenjualanController::class, 'store'])
     ->middleware(['auth', 'verified'])
     ->name('datapenjualan.store');
+Route::get('datapenjualan/check', [PenjualanController::class, 'checkRange'])
+    ->middleware(['auth', 'verified'])
+    ->name('datapenjualan.check');
 Route::delete('datapenjualan/{penjualan}', [PenjualanController::class, 'destroy'])
     ->middleware(['auth', 'verified'])
     ->name('datapenjualan.destroy');
@@ -42,6 +45,15 @@ Route::post('dataperamalan/preview/simpan', [PeramalanController::class, 'simpan
 Route::post('dataperamalan/preview/batal', [PeramalanController::class, 'batal'])
     ->middleware(['auth', 'verified'])
     ->name('dataperamalan.preview.batal');
+Route::post('dataperamalan/cetak/preview', [PeramalanController::class, 'cetakPreview'])
+    ->middleware(['auth', 'verified'])
+    ->name('dataperamalan.cetak.preview');
+Route::post('dataperamalan/cetak/batal', [PeramalanController::class, 'cetakBatal'])
+    ->middleware(['auth', 'verified'])
+    ->name('dataperamalan.cetak.batal');
+Route::get('dataperamalan/cetak', [PeramalanController::class, 'cetak'])
+    ->middleware(['auth', 'verified'])
+    ->name('dataperamalan.cetak');
 Route::delete('dataperamalan/{peramalan}', [PeramalanController::class, 'destroy'])
     ->middleware(['auth', 'verified'])
     ->name('dataperamalan.destroy');

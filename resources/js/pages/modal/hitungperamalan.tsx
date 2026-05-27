@@ -1,7 +1,8 @@
 import { useForm } from '@inertiajs/react';
 import { Calendar } from 'lucide-react';
-import { type FormEvent, useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import InputError from '@/components/input-error';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -23,22 +24,66 @@ export default function HitungPeramalanModal({ isOpen, onClose }: Props) {
       periode_awal: '',
       periode_akhir: '',
     });
+  const [formAlert, setFormAlert] = useState<string | null>(null);
   const periodeAwalRef = useRef<HTMLInputElement>(null);
   const periodeAkhirRef = useRef<HTMLInputElement>(null);
 
   const handleClose = useCallback(() => {
     reset();
     clearErrors();
+    setFormAlert(null);
     onClose();
   }, [reset, clearErrors, onClose]);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    setFormAlert(null);
+
+    const start = new Date(data.periode_awal);
+    const end = new Date(data.periode_akhir);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      setFormAlert('Periode awal dan akhir wajib diisi.');
+      return;
+    }
+
+    const monthDiff =
+      (end.getFullYear() - start.getFullYear()) * 12 +
+      (end.getMonth() - start.getMonth()) +
+      (end.getDate() >= start.getDate() ? 0 : -1);
+
+    if (monthDiff < 2) {
+      setFormAlert(
+        'Rentang periode awal dengan periode akhir kurang dari 2 bulan.',
+      );
+      return;
+    }
+
+    try {
+      const params = new URLSearchParams({
+        periode_awal: data.periode_awal,
+        periode_akhir: data.periode_akhir,
+      });
+      const response = await fetch(`/datapenjualan/check?${params.toString()}`);
+      if (!response.ok) {
+        throw new Error('failed');
+      }
+
+      const payload: { has_data?: boolean } = await response.json();
+      if (!payload.has_data) {
+        setFormAlert('Tidak ada data penjualan dalam rentang periode ini.');
+        return;
+      }
+    } catch {
+      setFormAlert('Gagal memeriksa data penjualan. Coba lagi.');
+      return;
+    }
 
     post('/dataperamalan/hitung', {
       preserveScroll: true,
       onSuccess: () => {
         reset();
+        setFormAlert(null);
         onClose();
       },
     });
@@ -97,6 +142,18 @@ export default function HitungPeramalanModal({ isOpen, onClose }: Props) {
             </div>
             <InputError message={errors.periode_akhir} />
           </div>
+
+          {formAlert && (
+            <Alert variant="destructive">
+              <AlertTitle>Perhatian</AlertTitle>
+              <AlertDescription>{formAlert}</AlertDescription>
+            </Alert>
+          )}
+
+          <p className="text-xs text-neutral-500">
+            Periode yang diramal adalah periode setelah periode akhir yang Anda
+            input.
+          </p>
 
           <div className="flex items-center justify-end">
             <Button type="submit" disabled={processing}>

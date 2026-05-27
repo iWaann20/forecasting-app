@@ -215,4 +215,19 @@ class PenjualanController extends Controller
             ->map(fn ($bulan) => str_pad((string) $bulan, 2, '0', STR_PAD_LEFT))
             ->all();
     }
+
+    public function checkRange(Request $request)
+    {
+        $validated = $request->validate([
+            'periode_awal' => ['required', 'date'],
+            'periode_akhir' => ['required', 'date', 'after_or_equal:periode_awal'],
+        ]);
+
+        $hasData = DataPenjualan::query()
+            ->whereDate('tanggal', '>=', $validated['periode_awal'])
+            ->whereDate('tanggal', '<=', $validated['periode_akhir'])
+            ->exists();
+
+        return response()->json(['has_data' => $hasData]);
+    }
 }

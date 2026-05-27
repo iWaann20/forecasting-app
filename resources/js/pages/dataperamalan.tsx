@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/app-layout';
 import HitungPeramalanModal from '@/pages/modal/hitungperamalan';
+import PreviewCetakModal from '@/pages/modal/previewcetak';
 import PreviewPeramalanModal from '@/pages/modal/previewperamalan';
 import { dataperamalan } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
@@ -54,6 +55,7 @@ type DataPeramalanProps = {
   bulanOptions: string[];
   tahunOptions: string[];
   preview: PreviewData | null;
+  cetakPreview: CetakPreview | null;
   filters: {
     produk?: string | null;
     bulan?: string | null;
@@ -78,6 +80,25 @@ type PreviewData = {
   items: PreviewItem[];
 };
 
+type CetakItem = {
+  id: string;
+  periode: string | null;
+  produk: string;
+  alpha: number | null;
+  mse: number | null;
+  mad: number | null;
+  nilai: number;
+};
+
+type CetakPreview = {
+  filters: {
+    produk?: string | null;
+    bulan?: string | null;
+    tahun?: string | null;
+  };
+  items: CetakItem[];
+};
+
 export default function DataPeramalan() {
   const {
     peramalan,
@@ -86,13 +107,19 @@ export default function DataPeramalan() {
     tahunOptions,
     filters,
     preview,
+    cetakPreview,
   } = usePage<DataPeramalanProps>().props;
   const [showHitungModal, setShowHitungModal] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(Boolean(preview));
+  const [showCetakModal, setShowCetakModal] = useState(Boolean(cetakPreview));
 
   useEffect(() => {
     setShowPreviewModal(Boolean(preview));
   }, [preview]);
+
+  useEffect(() => {
+    setShowCetakModal(Boolean(cetakPreview));
+  }, [cetakPreview]);
 
   const formatPeriode = (value: string | null) => {
     if (!value) {
@@ -227,6 +254,44 @@ export default function DataPeramalan() {
     );
   };
 
+  const handleCetakPreview = () => {
+    router.post(
+      '/dataperamalan/cetak/preview',
+      {
+        produk: filters.produk ?? null,
+        bulan: filters.bulan ?? null,
+        tahun: filters.tahun ?? null,
+      },
+      {
+        preserveScroll: true,
+        onSuccess: () => setShowCetakModal(true),
+      },
+    );
+  };
+
+  const handleCetakCancel = () => {
+    router.post(
+      '/dataperamalan/cetak/batal',
+      {},
+      {
+        preserveScroll: true,
+        onSuccess: () => setShowCetakModal(false),
+      },
+    );
+  };
+
+  const handleCetakPrint = () => {
+    window.open('/dataperamalan/cetak', '_blank', 'noopener,noreferrer');
+    router.post(
+      '/dataperamalan/cetak/batal',
+      {},
+      {
+        preserveScroll: true,
+        onSuccess: () => setShowCetakModal(false),
+      },
+    );
+  };
+
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Data Peramalan" />
@@ -318,20 +383,31 @@ export default function DataPeramalan() {
               </Select>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Button
-                className="h-9 cursor-pointer"
-                onClick={() => setShowHitungModal(true)}
-              >
-                Hitung Peramalan
-              </Button>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" className="h-9">
+                  <Button
+                    className="h-9 cursor-pointer"
+                    onClick={() => setShowHitungModal(true)}
+                  >
+                    Hitung Peramalan
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Input periode awal dan periode akhir minimal rentang 2 bulan.
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="h-9"
+                    onClick={handleCetakPreview}
+                  >
                     Cetak
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  Masukkan hasil peramalan pada tabel, lalu cetak laporan.
+                  Filter data peramalan dahulu, lalu cetak laporan.
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -432,6 +508,12 @@ export default function DataPeramalan() {
         preview={preview}
         onClose={handlePreviewCancel}
         onSave={handlePreviewSave}
+      />
+      <PreviewCetakModal
+        isOpen={showCetakModal}
+        preview={cetakPreview}
+        onClose={handleCetakCancel}
+        onPrint={handleCetakPrint}
       />
     </AppLayout>
   );
