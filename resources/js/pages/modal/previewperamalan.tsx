@@ -1,3 +1,4 @@
+import { Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -5,6 +6,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 type PreviewItem = {
   peramalan_id: string;
@@ -60,6 +66,9 @@ const formatMetric = (value: number | null) => {
   );
 };
 
+const tooltipButtonClass =
+  'ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full text-neutral-400 hover:text-neutral-600';
+
 export default function PreviewPeramalanModal({
   isOpen,
   preview,
@@ -98,10 +107,77 @@ export default function PreviewPeramalanModal({
                 <thead className="bg-neutral-100 text-xs text-neutral-600 uppercase">
                   <tr>
                     <th className="px-3 py-2 text-left">Produk</th>
-                    <th className="px-3 py-2 text-center">Alpha</th>
-                    <th className="px-3 py-2 text-center">MSE</th>
-                    <th className="px-3 py-2 text-center">MAD</th>
-                    <th className="px-3 py-2 text-right">Nilai Peramalan</th>
+                    <th className="px-3 py-2 text-center">
+                      Alpha
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            className={tooltipButtonClass}
+                            tabIndex={-1}
+                          >
+                            <Info className="h-3.5 w-3.5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Parameter penghalus dalam peramalan. Nilai lebih besar
+                          membuat hasil lebih cepat mengikuti perubahan data.
+                        </TooltipContent>
+                      </Tooltip>
+                    </th>
+                    <th className="px-3 py-2 text-center">
+                      MSE
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            className={tooltipButtonClass}
+                            tabIndex={-1}
+                          >
+                            <Info className="h-3.5 w-3.5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Mean Squared Error, rata-rata kuadrat kesalahan
+                          perkiraan. Semakin kecil, semakin akurat.
+                        </TooltipContent>
+                      </Tooltip>
+                    </th>
+                    <th className="px-3 py-2 text-center">
+                      MAD
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            className={tooltipButtonClass}
+                            tabIndex={-1}
+                          >
+                            <Info className="h-3.5 w-3.5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Mean Absolute Deviation, rata-rata meleset berapa unit
+                          dari data asli. Semakin kecil, semakin baik.
+                        </TooltipContent>
+                      </Tooltip>
+                    </th>
+                    <th className="px-3 py-2 text-right">
+                      Nilai Peramalan
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            className={tooltipButtonClass}
+                            tabIndex={-1}
+                          >
+                            <Info className="h-3.5 w-3.5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Rekomendasi jumlah stok yang perlu disiapkan.
+                        </TooltipContent>
+                      </Tooltip>
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200">
