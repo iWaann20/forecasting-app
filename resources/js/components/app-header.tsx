@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { ChartLine, ChartNetwork, LayoutGrid, Menu } from 'lucide-react';
+import { useState } from 'react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { UserMenuContent } from '@/components/user-menu-content';
+import { UserProfileModal } from '@/components/user-profile-modal';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
@@ -64,6 +66,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     : mainNavItems.filter((item) => item.title !== 'Data Peramalan');
   const getInitials = useInitials();
   const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl();
+  const [profileOpen, setProfileOpen] = useState(false);
   return (
     <>
       <div className="border-b border-sidebar-border/80">
@@ -150,17 +153,28 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="size-10 rounded-full p-1">
                   <Avatar className="size-8 overflow-hidden rounded-full">
-                    <AvatarImage src={auth.user.avatar} alt={auth.user.name} />
+                    <AvatarImage
+                      src={auth.user.avatar ?? auth.user.foto_profil_url}
+                      alt={auth.user.username as string}
+                    />
                     <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
-                      {getInitials(auth.user.name)}
+                      {getInitials(auth.user.username as string)}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end">
-                <UserMenuContent user={auth.user} />
+              <DropdownMenuContent className="w-40" align="end" forceMount>
+                <UserMenuContent
+                  user={auth.user}
+                  onOpenProfile={() => setProfileOpen(true)}
+                />
               </DropdownMenuContent>
             </DropdownMenu>
+            <UserProfileModal
+              isOpen={profileOpen}
+              onClose={() => setProfileOpen(false)}
+              user={auth.user}
+            />
           </div>
         </div>
       </div>

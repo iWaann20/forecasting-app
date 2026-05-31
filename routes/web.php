@@ -1,17 +1,19 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use Laravel\Fortify\Features;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\PeramalanController;
+use App\Http\Controllers\PenggunaController;
 
 Route::get('/', function () {
-    return Inertia::render('welcome', [
-        'canRegister' => Features::enabled(Features::registration()),
-    ]);
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
+
+    return redirect()->route('login');
 })->name('home');
 
 Route::get('/login', [LoginController::class, 'create'])->name('login');
@@ -33,6 +35,15 @@ Route::get('datapenjualan/check', [PenjualanController::class, 'checkRange'])
 Route::delete('datapenjualan/{penjualan}', [PenjualanController::class, 'destroy'])
     ->middleware(['auth', 'verified'])
     ->name('datapenjualan.destroy');
+Route::post('profile/username', [PenggunaController::class, 'updateUsername'])
+    ->middleware(['auth', 'verified'])
+    ->name('profile.username.update');
+Route::post('profile/photo', [PenggunaController::class, 'updateProfile'])
+    ->middleware(['auth', 'verified'])
+    ->name('profile.photo.update');
+Route::delete('profile/photo', [PenggunaController::class, 'deleteProfile'])
+    ->middleware(['auth', 'verified'])
+    ->name('profile.photo.delete');
 Route::middleware(['auth', 'verified', 'role:pemilik'])->group(function () {
     Route::get('dataperamalan', [PeramalanController::class, 'index'])
         ->name('dataperamalan');
