@@ -33,29 +33,23 @@ Route::get('datapenjualan/check', [PenjualanController::class, 'checkRange'])
 Route::delete('datapenjualan/{penjualan}', [PenjualanController::class, 'destroy'])
     ->middleware(['auth', 'verified'])
     ->name('datapenjualan.destroy');
-Route::get('dataperamalan', [PeramalanController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dataperamalan');
-Route::post('dataperamalan/hitung', [PeramalanController::class, 'hitung'])
-    ->middleware(['auth', 'verified'])
-    ->name('dataperamalan.hitung');
-Route::post('dataperamalan/preview/simpan', [PeramalanController::class, 'simpan'])
-    ->middleware(['auth', 'verified'])
-    ->name('dataperamalan.preview.simpan');
-Route::post('dataperamalan/preview/batal', [PeramalanController::class, 'batal'])
-    ->middleware(['auth', 'verified'])
-    ->name('dataperamalan.preview.batal');
-Route::post('dataperamalan/cetak/preview', [PeramalanController::class, 'cetakPreview'])
-    ->middleware(['auth', 'verified'])
-    ->name('dataperamalan.cetak.preview');
-Route::post('dataperamalan/cetak/batal', [PeramalanController::class, 'cetakBatal'])
-    ->middleware(['auth', 'verified'])
-    ->name('dataperamalan.cetak.batal');
-Route::get('dataperamalan/cetak', [PeramalanController::class, 'cetak'])
-    ->middleware(['auth', 'verified'])
-    ->name('dataperamalan.cetak');
-Route::delete('dataperamalan/{peramalan}', [PeramalanController::class, 'destroy'])
-    ->middleware(['auth', 'verified'])
-    ->name('dataperamalan.destroy');
+Route::middleware(['auth', 'verified', 'role:pemilik'])->group(function () {
+    Route::get('dataperamalan', [PeramalanController::class, 'index'])
+        ->name('dataperamalan');
+    Route::post('dataperamalan/hitung', [PeramalanController::class, 'hitung'])
+        ->name('dataperamalan.hitung');
+    Route::post('dataperamalan/preview/simpan', [PeramalanController::class, 'simpan'])
+        ->name('dataperamalan.preview.simpan');
+    Route::post('dataperamalan/preview/batal', [PeramalanController::class, 'batal'])
+        ->name('dataperamalan.preview.batal');
+    Route::post('dataperamalan/cetak/preview', [PeramalanController::class, 'cetakPreview'])
+        ->name('dataperamalan.cetak.preview');
+    Route::post('dataperamalan/cetak/batal', [PeramalanController::class, 'cetakBatal'])
+        ->name('dataperamalan.cetak.batal');
+    Route::get('dataperamalan/cetak', [PeramalanController::class, 'cetak'])
+        ->name('dataperamalan.cetak');
+    Route::delete('dataperamalan/{peramalan}', [PeramalanController::class, 'destroy'])
+        ->name('dataperamalan.destroy');
+});
 
 require __DIR__.'/settings.php';

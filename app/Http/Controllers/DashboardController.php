@@ -12,6 +12,7 @@ class DashboardController extends Controller
 {
     public function __invoke(Request $request): Response
     {
+        $isPemilik = $request->user()?->role === 'pemilik';
         $produk = $request->query('produk');
         $tahun = $request->query('tahun');
 
@@ -24,7 +25,7 @@ class DashboardController extends Controller
 
         return Inertia::render('dashboard', [
             'totalPenjualan' => DataPenjualan::count(),
-            'totalPeramalan' => DataPeramalan::count(),
+            'totalPeramalan' => $isPemilik ? DataPeramalan::count() : null,
             'penjualanPerProduk' => PenjualanController::totalPerProduk($tahun),
             'penjualanPerPeriode' => PenjualanController::totalPerPeriode($produk, $tahun),
             'penjualanPerProdukPerPeriode' => PenjualanController::totalPerProdukPerPeriode($tahun),
@@ -33,6 +34,7 @@ class DashboardController extends Controller
                 'produk' => $produk,
                 'tahun' => $tahun,
             ],
+            'canSeePeramalan' => $isPemilik,
         ]);
     }
 }

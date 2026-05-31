@@ -37,7 +37,8 @@ type PenjualanPerProdukPerPeriodeItem = {
 
 type DashboardProps = {
   totalPenjualan: number;
-  totalPeramalan: number;
+  totalPeramalan: number | null;
+  canSeePeramalan: boolean;
   penjualanPerProduk: PenjualanPerProdukItem[];
   penjualanPerPeriode: PenjualanPerPeriodeItem[];
   penjualanPerProdukPerPeriode: PenjualanPerProdukPerPeriodeItem[];
@@ -59,6 +60,7 @@ export default function Dashboard() {
   const {
     totalPenjualan,
     totalPeramalan,
+    canSeePeramalan,
     penjualanPerProduk,
     penjualanPerPeriode,
     penjualanPerProdukPerPeriode,
@@ -132,7 +134,9 @@ export default function Dashboard() {
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
           Dashboard
         </h1>
-        <div className="grid auto-rows-min gap-4 md:grid-cols-2">
+        <div
+          className={`grid auto-rows-min gap-4 ${canSeePeramalan ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}
+        >
           <div className="rounded-xl border border-sidebar-border/70 bg-white p-4 shadow-sm dark:border-sidebar-border dark:bg-neutral-900">
             <p className="text-sm text-neutral-500">Total Data Penjualan</p>
             <p className="mt-2 text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
@@ -142,15 +146,17 @@ export default function Dashboard() {
               Data total penjualan yang tercatat
             </p>
           </div>
-          <div className="rounded-xl border border-sidebar-border/70 bg-white p-4 shadow-sm dark:border-sidebar-border dark:bg-neutral-900">
-            <p className="text-sm text-neutral-500">Total Hasil Peramalan</p>
-            <p className="mt-2 text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
-              {formatNumber(totalPeramalan)}
-            </p>
-            <p className="mt-2 text-xs text-neutral-400">
-              Jumlah data peramalan yang tersimpan
-            </p>
-          </div>
+          {canSeePeramalan && (
+            <div className="rounded-xl border border-sidebar-border/70 bg-white p-4 shadow-sm dark:border-sidebar-border dark:bg-neutral-900">
+              <p className="text-sm text-neutral-500">Total Hasil Peramalan</p>
+              <p className="mt-2 text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
+                {formatNumber(totalPeramalan ?? 0)}
+              </p>
+              <p className="mt-2 text-xs text-neutral-400">
+                Jumlah data peramalan yang tersimpan
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="rounded-xl border border-sidebar-border/70 bg-white p-4 shadow-sm dark:border-sidebar-border dark:bg-neutral-900">
