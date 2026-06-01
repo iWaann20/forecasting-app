@@ -345,18 +345,20 @@ export function UserProfileModal({ isOpen, onClose, user }: Props) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="overflow-hidden bg-neutral-300/80 p-0 sm:max-w-sm dark:bg-neutral-800">
-        <div className="px-5 py-4">
-          <DialogHeader className="text-left">
-            <DialogTitle>Edit Profile</DialogTitle>
-            <DialogDescription className="sr-only">
-              Update your profile photo, username, and password.
+      <DialogContent className="max-h-[85vh] overflow-hidden border border-neutral-200/80 bg-amber-50/70 p-0 shadow-lg sm:max-w-lg dark:border-neutral-800/80 dark:bg-[#0a1220]">
+        <div className="max-h-[85vh] overflow-y-auto p-5">
+          <DialogHeader className="space-y-1">
+            <DialogTitle className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+              Edit Profil
+            </DialogTitle>
+            <DialogDescription className="text-xs text-neutral-500 dark:text-neutral-400">
+              Kelola foto profil, username, dan password akun Anda.
             </DialogDescription>
           </DialogHeader>
 
           <div className="mt-4 space-y-4">
-            <div className="flex flex-col items-center text-center">
-              <Avatar className="h-20 w-20 rounded-full">
+            <div className="rounded-lg border border-neutral-200/80 bg-white/70 p-3 text-center shadow-xs dark:border-neutral-800/80 dark:bg-neutral-950/40">
+              <Avatar className="mx-auto h-18 w-18 rounded-full">
                 <AvatarImage
                   src={
                     photoPreview ??
@@ -375,11 +377,11 @@ export function UserProfileModal({ isOpen, onClose, user }: Props) {
                 className="hidden"
                 onChange={handlePhotoChange}
               />
-              <div className="mt-2 flex items-center gap-2">
+              <div className="mt-4 flex justify-center gap-2">
                 <Button
                   type="button"
-                  variant="secondary"
                   size="sm"
+                  variant="outline"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={photoProcessing}
                 >
@@ -387,8 +389,8 @@ export function UserProfileModal({ isOpen, onClose, user }: Props) {
                 </Button>
                 <Button
                   type="button"
-                  variant="destructive"
                   size="sm"
+                  variant="destructive"
                   onClick={handleRemovePhoto}
                   disabled={!canRemovePhoto || photoProcessing}
                 >
@@ -544,12 +546,19 @@ export function UserProfileModal({ isOpen, onClose, user }: Props) {
                 >
                   <p className="text-sm text-neutral-600">Saved</p>
                 </Transition>
-                <Button
-                  type="submit"
-                  disabled={passwordForm.processing || photoProcessing}
-                >
-                  Simpan
-                </Button>
+                <div className="mt-3 flex items-center justify-end gap-2">
+                  <Button type="button" variant="outline" onClick={onClose}>
+                    Batal
+                  </Button>
+
+                  <Button
+                    type="submit"
+                    disabled={passwordForm.processing || photoProcessing}
+                    className="bg-sky-600 text-white shadow-sm hover:bg-sky-500 dark:bg-amber-400 dark:text-neutral-950 dark:hover:bg-amber-300"
+                  >
+                    Simpan Perubahan
+                  </Button>
+                </div>
               </div>
             </form>
           </div>

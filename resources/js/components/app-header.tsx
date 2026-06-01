@@ -1,5 +1,12 @@
 import { Link, usePage } from '@inertiajs/react';
-import { ChartLine, ChartNetwork, LayoutGrid, Menu } from 'lucide-react';
+import {
+  ChartLine,
+  ChartNetwork,
+  LayoutGrid,
+  Menu,
+  Moon,
+  Sun,
+} from 'lucide-react';
 import { useState } from 'react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -24,6 +31,7 @@ import {
 } from '@/components/ui/sheet';
 import { UserMenuContent } from '@/components/user-menu-content';
 import { UserProfileModal } from '@/components/user-profile-modal';
+import { useAppearance } from '@/hooks/use-appearance';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
@@ -55,7 +63,9 @@ const mainNavItems: NavItem[] = [
 ];
 
 const activeItemStyles =
-  'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
+  'text-sky-900 bg-sky-50/70 dark:bg-sky-900/30 dark:text-sky-100';
+const inactiveItemStyles =
+  'bg-transparent text-slate-600/80 hover:bg-transparent focus:bg-transparent dark:text-slate-200/60';
 
 export function AppHeader({ breadcrumbs = [] }: Props) {
   const page = usePage<SharedData>();
@@ -65,11 +75,13 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     ? mainNavItems
     : mainNavItems.filter((item) => item.title !== 'Data Peramalan');
   const getInitials = useInitials();
-  const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl();
+  const { isCurrentUrl } = useCurrentUrl();
   const [profileOpen, setProfileOpen] = useState(false);
+  const { resolvedAppearance, updateAppearance } = useAppearance();
+  const isDarkMode = resolvedAppearance === 'dark';
   return (
     <>
-      <div className="border-b border-sidebar-border/80">
+      <div className="border-b border-sidebar-border/80 bg-gradient-to-r from-amber-100 via-sky-100 to-white shadow-sm dark:from-[#0a0d12] dark:via-[#122a45] dark:to-[#0a0d12]">
         <div className="mx-auto flex h-16 items-center px-4 md:max-w-7xl">
           {/* Mobile Menu */}
           <div className="lg:hidden">
@@ -111,13 +123,9 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
             </Sheet>
           </div>
 
-          <Link
-            href={dashboard()}
-            prefetch
-            className="flex items-center space-x-2"
-          >
+          <div className="flex items-center space-x-2">
             <AppLogo />
-          </Link>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="ml-6 hidden h-full items-center space-x-6 lg:flex">
@@ -132,7 +140,9 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                       href={item.href}
                       className={cn(
                         navigationMenuTriggerStyle(),
-                        whenCurrentUrl(item.href, activeItemStyles),
+                        isCurrentUrl(item.href)
+                          ? activeItemStyles
+                          : inactiveItemStyles,
                         'h-9 cursor-pointer px-3',
                       )}
                     >
@@ -140,7 +150,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                       {item.title}
                     </Link>
                     {isCurrentUrl(item.href) && (
-                      <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-black dark:bg-white"></div>
+                      <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-sky-600 dark:bg-amber-400"></div>
                     )}
                   </NavigationMenuItem>
                 ))}
@@ -149,6 +159,20 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
           </div>
 
           <div className="ml-auto flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={
+                isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'
+              }
+              onClick={() => updateAppearance(isDarkMode ? 'light' : 'dark')}
+            >
+              {isDarkMode ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="size-10 rounded-full p-1">

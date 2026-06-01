@@ -46,7 +46,6 @@ class Pengguna extends Authenticatable
             return $disk->url($this->foto_profil);
         }
 
-        $name = urlencode($this->username);
-        return "https://ui-avatars.com/api/?name={$name}&background=random&size=200";
+        return asset('images/default-profile.png');
     }
 }

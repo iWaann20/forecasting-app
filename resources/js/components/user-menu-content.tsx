@@ -35,13 +35,13 @@ export function UserMenuContent({ onOpenProfile }: Props) {
       <DropdownMenuSeparator />
       <DropdownMenuItem asChild>
         <Link
-          className="block w-full cursor-pointer"
+          className="block w-full cursor-pointer text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
           href={logout()}
           as="button"
           onClick={handleLogout}
           data-test="logout-button"
         >
-          <LogOut className="mr-2" />
+          <LogOut className="mr-2 text-red-500" />
           Log out
         </Link>
       </DropdownMenuItem>

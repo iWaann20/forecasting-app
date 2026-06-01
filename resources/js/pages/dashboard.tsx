@@ -1,4 +1,5 @@
 import { Head, router, usePage } from '@inertiajs/react';
+import { BarChart3, DollarSign } from 'lucide-react';
 import {
   Bar,
   BarChart,
@@ -137,29 +138,43 @@ export default function Dashboard() {
         <div
           className={`grid auto-rows-min gap-4 ${canSeePeramalan ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}
         >
-          <div className="rounded-xl border border-sidebar-border/70 bg-white p-4 shadow-sm dark:border-sidebar-border dark:bg-neutral-900">
-            <p className="text-sm text-neutral-500">Total Data Penjualan</p>
-            <p className="mt-2 text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
+          <div className="rounded-xl border border-neutral-300/80 bg-gradient-to-br from-white via-sky-100/70 to-amber-100/70 p-4 text-neutral-900 shadow-md ring-1 ring-black/10 dark:border-neutral-700/80 dark:bg-gradient-to-br dark:from-neutral-950 dark:via-slate-900/70 dark:to-neutral-900 dark:text-neutral-100 dark:ring-white/20">
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-[11px] font-semibold tracking-[0.16em] text-neutral-500 uppercase dark:text-neutral-300">
+                Total Data Penjualan
+              </p>
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-sky-200/80 text-sky-800 shadow-sm dark:bg-sky-500/30 dark:text-sky-100">
+                <DollarSign className="h-5 w-5" />
+              </div>
+            </div>
+            <p className="mt-3 text-4xl leading-none font-semibold text-neutral-900 dark:text-white">
               {formatNumber(totalPenjualan)}
             </p>
-            <p className="mt-2 text-xs text-neutral-400">
+            <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
               Data total penjualan yang tercatat
             </p>
           </div>
           {canSeePeramalan && (
-            <div className="rounded-xl border border-sidebar-border/70 bg-white p-4 shadow-sm dark:border-sidebar-border dark:bg-neutral-900">
-              <p className="text-sm text-neutral-500">Total Hasil Peramalan</p>
-              <p className="mt-2 text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
+            <div className="rounded-xl border border-neutral-300/80 bg-gradient-to-br from-white via-amber-100/70 to-sky-100/70 p-4 text-neutral-900 shadow-md ring-1 ring-black/10 dark:border-neutral-700/80 dark:bg-gradient-to-br dark:from-neutral-950 dark:via-amber-900/20 dark:to-slate-900 dark:text-neutral-100 dark:ring-white/20">
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-[11px] font-semibold tracking-[0.16em] text-neutral-500 uppercase dark:text-neutral-300">
+                  Total Hasil Peramalan
+                </p>
+                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-amber-200/80 text-amber-800 shadow-sm dark:bg-amber-500/30 dark:text-amber-100">
+                  <BarChart3 className="h-5 w-5" />
+                </div>
+              </div>
+              <p className="mt-3 text-4xl leading-none font-semibold text-neutral-900 dark:text-white">
                 {formatNumber(totalPeramalan ?? 0)}
               </p>
-              <p className="mt-2 text-xs text-neutral-400">
+              <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
                 Jumlah data peramalan yang tersimpan
               </p>
             </div>
           )}
         </div>
 
-        <div className="rounded-xl border border-sidebar-border/70 bg-white p-4 shadow-sm dark:border-sidebar-border dark:bg-neutral-900">
+        <div className="rounded-xl border border-sidebar-border/80 bg-gradient-to-br from-white via-slate-100/70 to-amber-100/50 p-4 shadow-md ring-1 ring-black/10 dark:border-sidebar-border dark:bg-gradient-to-br dark:from-neutral-950 dark:via-slate-900/70 dark:to-slate-900/80 dark:ring-white/20">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
@@ -171,7 +186,7 @@ export default function Dashboard() {
                 • {filters.tahun ?? 'Semua Tahun'}
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-nowrap items-center gap-2">
               <Select
                 value={filters.produk ?? 'all'}
                 onValueChange={(value) =>
@@ -180,7 +195,7 @@ export default function Dashboard() {
                   })
                 }
               >
-                <SelectTrigger className="h-8 min-w-[160px] text-xs">
+                <SelectTrigger className="h-8 w-[160px] text-xs">
                   <SelectValue placeholder="Produk" />
                 </SelectTrigger>
                 <SelectContent>
@@ -206,7 +221,7 @@ export default function Dashboard() {
                   })
                 }
               >
-                <SelectTrigger className="h-8 min-w-[160px] text-xs">
+                <SelectTrigger className="h-8 w-[160px] text-xs">
                   <SelectValue placeholder="Tahun" />
                 </SelectTrigger>
                 <SelectContent>
@@ -233,28 +248,49 @@ export default function Dashboard() {
                 Belum ada data penjualan untuk ditampilkan.
               </div>
             ) : (
-              <div className="h-80">
+              <div className="h-80 rounded-lg border border-neutral-300/70 bg-gradient-to-br from-white via-sky-100/50 to-amber-100/40 p-2 shadow-sm [--chart-axis:#475569] [--chart-bar-soft:#7dd3fc] [--chart-bar:#1d4ed8] [--chart-cursor:rgba(29,78,216,0.16)] [--chart-grid:#cbd5f5] dark:border-neutral-700/70 dark:bg-gradient-to-br dark:from-neutral-950 dark:via-slate-900/70 dark:to-slate-900/80 dark:[--chart-axis:#cbd5f5] dark:[--chart-bar-soft:#38bdf8] dark:[--chart-bar:#60a5fa] dark:[--chart-cursor:rgba(96,165,250,0.24)] dark:[--chart-grid:#1f2937]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={chartData}
                     margin={{
-                      top: 10,
-                      right: 20,
-                      left: 0,
-                      bottom: 10,
+                      top: 12,
+                      right: 16,
+                      left: 4,
+                      bottom: 6,
                     }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <defs>
+                      <linearGradient
+                        id="penjualanGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop offset="0%" stopColor="var(--chart-bar)" />
+                        <stop offset="100%" stopColor="var(--chart-bar-soft)" />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid
+                      stroke="var(--chart-grid)"
+                      strokeDasharray="4 4"
+                      vertical={false}
+                    />
                     <XAxis
                       dataKey="label"
-                      tick={{ fontSize: 12 }}
+                      tick={{ fontSize: 12, fill: 'var(--chart-axis)' }}
                       interval="preserveStartEnd"
+                      axisLine={false}
+                      tickLine={false}
                     />
                     <YAxis
-                      tick={{ fontSize: 12 }}
+                      tick={{ fontSize: 12, fill: 'var(--chart-axis)' }}
                       tickFormatter={formatNumber}
+                      axisLine={false}
+                      tickLine={false}
                     />
                     <Tooltip
+                      cursor={{ fill: 'var(--chart-cursor)' }}
                       content={({ active, payload, label }) => {
                         if (!active || !payload || payload.length === 0) {
                           return null;
@@ -269,7 +305,7 @@ export default function Dashboard() {
                         const total = payload[0]?.value as number | undefined;
 
                         return (
-                          <div className="rounded-lg border border-neutral-200 bg-white p-3 text-xs shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                          <div className="rounded-lg border border-neutral-200 bg-white/95 p-3 text-xs shadow-sm backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95">
                             <p className="text-[11px] font-semibold text-neutral-700 dark:text-neutral-200">
                               Periode: {label}
                             </p>
@@ -304,7 +340,12 @@ export default function Dashboard() {
                         );
                       }}
                     />
-                    <Bar dataKey="total" fill="#0f172a" radius={[6, 6, 0, 0]} />
+                    <Bar
+                      dataKey="total"
+                      fill="url(#penjualanGradient)"
+                      radius={[10, 10, 6, 6]}
+                      barSize={28}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>

@@ -159,7 +159,7 @@ export default function DataPenjualan() {
           Data Penjualan
         </h1>
 
-        <div className="rounded-xl border border-sidebar-border/70 bg-white p-4 shadow-sm dark:border-sidebar-border dark:bg-neutral-900">
+        <div className="rounded-xl border border-sidebar-border/80 bg-gradient-to-br from-white via-slate-50/70 to-amber-50/40 p-4 shadow-md ring-1 ring-black/10 dark:border-sidebar-border dark:bg-gradient-to-br dark:from-neutral-950 dark:via-slate-900/70 dark:to-slate-900/80 dark:ring-white/15">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-nowrap items-center gap-2">
               <Select
@@ -242,64 +242,69 @@ export default function DataPenjualan() {
               </Select>
             </div>
             <Button
-              className="h-9 cursor-pointer"
+              className="h-9 cursor-pointer bg-sky-600 text-white shadow-sm hover:bg-sky-500 dark:bg-amber-400 dark:text-neutral-950 dark:hover:bg-amber-300"
               onClick={() => setShowTambahModal(true)}
             >
               Tambah
             </Button>
           </div>
 
-          <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
-            <table className="min-w-full text-sm">
-              <thead className="bg-neutral-100 text-xs text-neutral-600 uppercase dark:bg-neutral-800 dark:text-neutral-300">
-                <tr>
-                  <th className="px-3 py-2 text-left">No</th>
-                  <th className="px-3 py-2 text-left">Tanggal</th>
-                  <th className="px-3 py-2 text-left">Produk</th>
-                  <th className="px-3 py-2 text-right">Jumlah</th>
-                  <th className="px-3 py-2 text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
-                {penjualan.data.length === 0 ? (
+          <div className="mt-4 overflow-hidden rounded-lg border border-neutral-200/80 bg-white/70 shadow-xs dark:border-neutral-800/80 dark:bg-neutral-950/40">
+            <div className="overflow-x-auto">
+              <table className="min-w-full border-separate border-spacing-0 text-sm">
+                <thead className="sticky top-0 bg-slate-100/90 text-xs font-semibold text-neutral-600 uppercase backdrop-blur dark:bg-neutral-900/90 dark:text-neutral-300">
                   <tr>
-                    <td
-                      colSpan={5}
-                      className="px-3 py-10 text-center text-sm text-neutral-400"
-                    >
-                      Belum ada data penjualan.
-                    </td>
+                    <th className="px-3 py-2.5 text-left">No</th>
+                    <th className="px-3 py-2.5 text-left">Tanggal</th>
+                    <th className="px-3 py-2.5 text-left">Produk</th>
+                    <th className="px-3 py-2.5 text-right">Jumlah</th>
+                    <th className="px-3 py-2.5 text-center">Aksi</th>
                   </tr>
-                ) : (
-                  penjualan.data.map((row, index) => (
-                    <tr key={row.id} className="bg-white dark:bg-neutral-900">
-                      <td className="px-3 py-2 text-neutral-700 dark:text-neutral-200">
-                        {(penjualan.current_page - 1) * 10 + index + 1}
-                      </td>
-                      <td className="px-3 py-2 text-neutral-700 dark:text-neutral-200">
-                        {formatTanggal(row.tanggal)}
-                      </td>
-                      <td className="px-3 py-2 text-neutral-700 dark:text-neutral-200">
-                        {formatProduk(row.produk)}
-                      </td>
-                      <td className="px-3 py-2 text-right text-neutral-700 dark:text-neutral-200">
-                        {row.jumlah}
-                      </td>
-                      <td className="px-3 py-2 text-center">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => handleDelete(row.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                </thead>
+                <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
+                  {penjualan.data.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="px-3 py-10 text-center text-sm text-neutral-400"
+                      >
+                        Belum ada data penjualan.
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    penjualan.data.map((row, index) => (
+                      <tr
+                        key={row.id}
+                        className="transition-colors odd:bg-white even:bg-slate-50/60 hover:bg-sky-50/60 dark:odd:bg-neutral-900 dark:even:bg-neutral-900/60 dark:hover:bg-sky-900/20"
+                      >
+                        <td className="px-3 py-2.5 text-neutral-700 dark:text-neutral-200">
+                          {(penjualan.current_page - 1) * 10 + index + 1}
+                        </td>
+                        <td className="px-3 py-2.5 text-neutral-700 dark:text-neutral-200">
+                          {formatTanggal(row.tanggal)}
+                        </td>
+                        <td className="px-3 py-2.5 text-neutral-700 dark:text-neutral-200">
+                          {formatProduk(row.produk)}
+                        </td>
+                        <td className="px-3 py-2.5 text-right text-neutral-700 dark:text-neutral-200">
+                          {row.jumlah}
+                        </td>
+                        <td className="px-3 py-2.5 text-center">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8 border-rose-200 text-rose-600 hover:border-rose-300 hover:text-rose-700 dark:border-rose-900/50 dark:text-rose-300"
+                            onClick={() => handleDelete(row.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {penjualan.links.length > 0 && (
@@ -322,8 +327,8 @@ export default function DataPenjualan() {
                     href={link.url}
                     className={`rounded-md border px-3 py-1 ${
                       link.active
-                        ? 'border-neutral-900 bg-neutral-900 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-900'
-                        : 'border-neutral-200 text-neutral-600 hover:border-neutral-300 dark:border-neutral-800 dark:text-neutral-300'
+                        ? 'border-sky-600 bg-sky-600 text-white shadow-sm dark:border-amber-400 dark:bg-amber-400 dark:text-neutral-950'
+                        : 'border-neutral-200 text-neutral-600 hover:border-sky-300 hover:text-sky-700 dark:border-neutral-800 dark:text-neutral-300 dark:hover:border-amber-400/60 dark:hover:text-amber-200'
                     }`}
                     preserveState
                   >
