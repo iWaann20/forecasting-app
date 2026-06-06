@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Pengguna;
+use App\Models\Produk;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +15,36 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Seed Pengguna
+        Pengguna::create([
+            'pengguna_id' => Str::uuid(),
+            'username' => 'pemilik',
+            'password' => Hash::make('password'),
+            'role' => 'pemilik',
         ]);
+
+        Pengguna::create([
+            'pengguna_id' => Str::uuid(),
+            'username' => 'karyawan',
+            'password' => Hash::make('password'),
+            'role' => 'karyawan',
+        ]);
+
+        // Seed Produk
+        $produkData = [
+            ['nama_produk' => 'tandon_air', 'stok_minimum' => 5],
+            ['nama_produk' => 'turbin_ventilator', 'stok_minimum' => 10],
+            ['nama_produk' => 'genteng_metal', 'stok_minimum' => 20],
+        ];
+
+        foreach ($produkData as $produk) {
+            Produk::create([
+                'produk_id' => Str::uuid(),
+                'nama_produk' => $produk['nama_produk'],
+                'stok' => 50,
+                'stok_minimum' => $produk['stok_minimum'],
+            ]);
+        }
     }
 }
+

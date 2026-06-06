@@ -1,5 +1,5 @@
-import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { BookOpen, Folder, LayoutGrid, Package, ShoppingCart, TrendingUp, Archive } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -12,17 +12,9 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
-import type { NavItem } from '@/types';
+import { dashboard, datapenjualan, dataperamalan, dataproduk, datastok } from '@/routes';
+import type { NavItem, SharedData } from '@/types';
 import AppLogo from './app-logo';
-
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-];
 
 const footerNavItems: NavItem[] = [
     {
@@ -38,6 +30,41 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<SharedData>().props;
+    const isPemilik = auth?.user?.role === 'pemilik';
+
+    const mainNavItems: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: dashboard(),
+            icon: LayoutGrid,
+        },
+        {
+            title: 'Data Produk',
+            href: dataproduk().url,
+            icon: Package,
+        },
+        {
+            title: 'Data Stok',
+            href: datastok().url,
+            icon: Archive,
+        },
+        {
+            title: 'Data Penjualan',
+            href: datapenjualan().url,
+            icon: ShoppingCart,
+        },
+        ...(isPemilik
+            ? [
+                  {
+                      title: 'Data Peramalan',
+                      href: dataperamalan().url,
+                      icon: TrendingUp,
+                  },
+              ]
+            : []),
+    ];
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>

@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('data_penjualan', function (Blueprint $table) {
-            $table->uuid('penjualan_id')->primary();
-            $table->uuid('produk_id');
-            $table->foreign('produk_id')->references('produk_id')->on('produk')->onDelete('cascade');
-            $table->date('tanggal');
-            $table->integer('jumlah_terjual');
+        Schema::create('produk', function (Blueprint $table) {
+            $table->uuid('produk_id')->primary();
+            $table->string('nama_produk')->unique();
+            $table->integer('stok')->default(0);
+            $table->integer('stok_minimum')->default(0);
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('data_penjualan');
+        Schema::dropIfExists('produk');
     }
 };

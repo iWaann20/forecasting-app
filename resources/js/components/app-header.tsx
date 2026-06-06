@@ -1,10 +1,12 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
+  Archive,
   ChartLine,
   ChartNetwork,
   LayoutGrid,
   Menu,
   Moon,
+  Package,
   Sun,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -35,32 +37,15 @@ import { useAppearance } from '@/hooks/use-appearance';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
-import { dashboard, dataperamalan, datapenjualan } from '@/routes';
+import { dashboard, datapenjualan, dataperamalan, dataproduk, datastok } from '@/routes';
 import type { BreadcrumbItem, NavItem, SharedData } from '@/types';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
+import { NotificationDropdown } from './notification-dropdown';
 
 type Props = {
   breadcrumbs?: BreadcrumbItem[];
 };
-
-const mainNavItems: NavItem[] = [
-  {
-    title: 'Dashboard',
-    href: dashboard(),
-    icon: LayoutGrid,
-  },
-  {
-    title: 'Data Penjualan',
-    href: datapenjualan(),
-    icon: ChartLine,
-  },
-  {
-    title: 'Data Peramalan',
-    href: dataperamalan(),
-    icon: ChartNetwork,
-  },
-];
 
 const activeItemStyles =
   'text-sky-900 bg-sky-50/70 dark:bg-sky-900/30 dark:text-sky-100';
@@ -71,9 +56,39 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
   const page = usePage<SharedData>();
   const { auth } = page.props;
   const isPemilik = auth?.user?.role === 'pemilik';
-  const navItems = isPemilik
-    ? mainNavItems
-    : mainNavItems.filter((item) => item.title !== 'Data Peramalan');
+
+  const navItems: NavItem[] = [
+    {
+      title: 'Dashboard',
+      href: dashboard().url,
+      icon: LayoutGrid,
+    },
+    {
+      title: 'Data Produk',
+      href: dataproduk().url,
+      icon: Package,
+    },
+    {
+      title: 'Data Stok',
+      href: datastok().url,
+      icon: Archive,
+    },
+    {
+      title: 'Data Penjualan',
+      href: datapenjualan().url,
+      icon: ChartLine,
+    },
+    ...(isPemilik
+      ? [
+          {
+            title: 'Data Peramalan',
+            href: dataperamalan().url,
+            icon: ChartNetwork,
+          },
+        ]
+      : []),
+  ];
+
   const getInitials = useInitials();
   const { isCurrentUrl } = useCurrentUrl();
   const [profileOpen, setProfileOpen] = useState(false);
@@ -159,6 +174,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
           </div>
 
           <div className="ml-auto flex items-center space-x-2">
+            <NotificationDropdown />
             <Button
               variant="ghost"
               size="icon"

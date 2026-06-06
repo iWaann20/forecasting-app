@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('data_peramalan', function (Blueprint $table) {
             $table->uuid('peramalan_id')->primary();
+            $table->uuid('produk_id');
+            $table->foreign('produk_id')->references('produk_id')->on('produk')->onDelete('cascade');
             $table->date('periode_awal');
             $table->date('periode_akhir');
-            $table->string('nama_produk');
             $table->integer('nilai_peramalan');
             $table->float('alpha');
             $table->float('mad')->nullable();

@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('data_penjualan', function (Blueprint $table) {
-            $table->uuid('penjualan_id')->primary();
+        Schema::create('data_restock', function (Blueprint $table) {
+            $table->uuid('restock_id')->primary();
             $table->uuid('produk_id');
             $table->foreign('produk_id')->references('produk_id')->on('produk')->onDelete('cascade');
             $table->date('tanggal');
-            $table->integer('jumlah_terjual');
+            $table->integer('jumlah_restock');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('data_penjualan');
+        Schema::dropIfExists('data_restock');
     }
 };
