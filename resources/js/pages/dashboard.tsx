@@ -36,6 +36,11 @@ type PenjualanPerProdukPerPeriodeItem = {
   total: number;
 };
 
+type PeramalanPerPeriodeItem = {
+  periode: string;
+  total: number;
+};
+
 type DashboardProps = {
   totalPenjualan: number;
   totalPeramalan: number | null;
@@ -43,6 +48,8 @@ type DashboardProps = {
   penjualanPerProduk: PenjualanPerProdukItem[];
   penjualanPerPeriode: PenjualanPerPeriodeItem[];
   penjualanPerProdukPerPeriode: PenjualanPerProdukPerPeriodeItem[];
+  peramalanPerPeriode: PeramalanPerPeriodeItem[];
+  peramalanPerProdukPerPeriode: PenjualanPerProdukPerPeriodeItem[];
   tahunOptions: string[];
   filters: {
     produk?: string | null;
@@ -65,6 +72,8 @@ export default function Dashboard() {
     penjualanPerProduk,
     penjualanPerPeriode,
     penjualanPerProdukPerPeriode,
+    peramalanPerPeriode,
+    peramalanPerProdukPerPeriode,
     tahunOptions,
     filters,
   } = usePage<DashboardProps>().props;
@@ -78,7 +87,7 @@ export default function Dashboard() {
     }
 
     return date.toLocaleDateString('id-ID', {
-      month: 'long',
+      month: 'short',
       year: 'numeric',
     });
   };
@@ -94,7 +103,22 @@ export default function Dashboard() {
     total: item.total,
   }));
 
+  const peramalanChartData = (peramalanPerPeriode ?? []).map((item) => ({
+    periode: item.periode,
+    label: formatPeriode(item.periode),
+    total: item.total,
+  }));
+
   const produkPerPeriodeMap = penjualanPerProdukPerPeriode.reduce(
+    (acc, item) => {
+      acc[item.periode] = acc[item.periode] ?? [];
+      acc[item.periode].push({ produk: item.produk, total: item.total });
+      return acc;
+    },
+    {} as Record<string, { produk: string; total: number }[]>,
+  );
+
+  const peramalanProdukPerPeriodeMap = (peramalanPerProdukPerPeriode ?? []).reduce(
     (acc, item) => {
       acc[item.periode] = acc[item.periode] ?? [];
       acc[item.periode].push({ produk: item.produk, total: item.total });
@@ -174,183 +198,312 @@ export default function Dashboard() {
           )}
         </div>
 
-        <div className="rounded-xl border border-sidebar-border/80 bg-gradient-to-br from-white via-slate-100/70 to-amber-100/50 p-4 shadow-md ring-1 ring-black/10 dark:border-sidebar-border dark:bg-gradient-to-br dark:from-neutral-950 dark:via-slate-900/70 dark:to-slate-900/80 dark:ring-white/20">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                Grafik Penjualan
-              </h2>
-              <p className="text-xs text-neutral-400">
-                Filter:{' '}
-                {filters.produk ? formatProduk(filters.produk) : 'Semua Produk'}{' '}
-                • {filters.tahun ?? 'Semua Tahun'}
-              </p>
-            </div>
-            <div className="flex flex-nowrap items-center gap-2">
-              <Select
-                value={filters.produk ?? 'all'}
-                onValueChange={(value) =>
-                  updateFilters({
-                    produk: value === 'all' ? null : value,
-                  })
-                }
-              >
-                <SelectTrigger className="h-8 w-[160px] text-xs">
-                  <SelectValue placeholder="Produk" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Produk</SelectItem>
-                  {produkOptions.length === 0 ? (
-                    <SelectItem value="empty" disabled>
-                      Belum ada produk
-                    </SelectItem>
-                  ) : (
-                    produkOptions.map((produk) => (
-                      <SelectItem key={produk} value={produk}>
-                        {formatProduk(produk)}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-              <Select
-                value={filters.tahun ?? 'all'}
-                onValueChange={(value) =>
-                  updateFilters({
-                    tahun: value === 'all' ? null : value,
-                  })
-                }
-              >
-                <SelectTrigger className="h-8 w-[160px] text-xs">
-                  <SelectValue placeholder="Tahun" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Tahun</SelectItem>
-                  {tahunOptions.length === 0 ? (
-                    <SelectItem value="empty" disabled>
-                      Belum ada tahun
-                    </SelectItem>
-                  ) : (
-                    tahunOptions.map((tahun) => (
-                      <SelectItem key={tahun} value={tahun}>
-                        {tahun}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="mt-4">
-            {penjualanPerPeriode.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-neutral-200 p-6 text-center text-sm text-neutral-400 dark:border-neutral-800">
-                Belum ada data penjualan untuk ditampilkan.
+        <div className={`grid gap-4 ${canSeePeramalan ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+          <div className="rounded-xl border border-sidebar-border/80 bg-gradient-to-br from-white via-slate-100/70 to-amber-100/50 p-4 shadow-md ring-1 ring-black/10 dark:border-sidebar-border dark:bg-gradient-to-br dark:from-neutral-950 dark:via-slate-900/70 dark:to-slate-900/80 dark:ring-white/20">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                  Grafik Penjualan
+                </h2>
+                <p className="text-xs text-neutral-400">
+                  Filter:{' '}
+                  {filters.produk ? filters.produk : 'Semua Produk'}{' '}
+                  • {filters.tahun ?? 'Semua Tahun'}
+                </p>
               </div>
-            ) : (
-              <div className="h-80 rounded-lg border border-neutral-300/70 bg-gradient-to-br from-white via-sky-100/50 to-amber-100/40 p-2 shadow-sm [--chart-axis:#475569] [--chart-bar-soft:#7dd3fc] [--chart-bar:#1d4ed8] [--chart-cursor:rgba(29,78,216,0.16)] [--chart-grid:#cbd5f5] dark:border-neutral-700/70 dark:bg-gradient-to-br dark:from-neutral-950 dark:via-slate-900/70 dark:to-slate-900/80 dark:[--chart-axis:#cbd5f5] dark:[--chart-bar-soft:#38bdf8] dark:[--chart-bar:#60a5fa] dark:[--chart-cursor:rgba(96,165,250,0.24)] dark:[--chart-grid:#1f2937]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData}
-                    margin={{
-                      top: 12,
-                      right: 16,
-                      left: 4,
-                      bottom: 6,
-                    }}
-                  >
-                    <defs>
-                      <linearGradient
-                        id="penjualanGradient"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop offset="0%" stopColor="var(--chart-bar)" />
-                        <stop offset="100%" stopColor="var(--chart-bar-soft)" />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid
-                      stroke="var(--chart-grid)"
-                      strokeDasharray="4 4"
-                      vertical={false}
-                    />
-                    <XAxis
-                      dataKey="label"
-                      tick={{ fontSize: 12, fill: 'var(--chart-axis)' }}
-                      interval="preserveStartEnd"
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 12, fill: 'var(--chart-axis)' }}
-                      tickFormatter={formatNumber}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <Tooltip
-                      cursor={{ fill: 'var(--chart-cursor)' }}
-                      content={({ active, payload, label }) => {
-                        if (!active || !payload || payload.length === 0) {
-                          return null;
-                        }
+              <div className="flex flex-nowrap items-center gap-2">
+                <Select
+                  value={filters.produk ?? 'all'}
+                  onValueChange={(value) =>
+                    updateFilters({
+                      produk: value === 'all' ? null : value,
+                    })
+                  }
+                >
+                  <SelectTrigger className="h-8 w-[140px] text-xs">
+                    <SelectValue placeholder="Produk" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Semua Produk</SelectItem>
+                    {produkOptions.length === 0 ? (
+                      <SelectItem value="empty" disabled>
+                        Belum ada produk
+                      </SelectItem>
+                    ) : (
+                      produkOptions.map((produk) => (
+                        <SelectItem key={produk} value={produk}>
+                          {produk}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={filters.tahun ?? 'all'}
+                  onValueChange={(value) =>
+                    updateFilters({
+                      tahun: value === 'all' ? null : value,
+                    })
+                  }
+                >
+                  <SelectTrigger className="h-8 w-[120px] text-xs">
+                    <SelectValue placeholder="Tahun" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Semua Tahun</SelectItem>
+                    {tahunOptions.length === 0 ? (
+                      <SelectItem value="empty" disabled>
+                        Belum ada tahun
+                      </SelectItem>
+                    ) : (
+                      tahunOptions.map((tahun) => (
+                        <SelectItem key={tahun} value={tahun}>
+                          {tahun}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-                        const periode = payload[0]?.payload?.periode as
-                          | string
-                          | undefined;
-                        const produkTotals = periode
-                          ? (produkPerPeriodeMap[periode] ?? [])
-                          : [];
-                        const total = payload[0]?.value as number | undefined;
-
-                        return (
-                          <div className="rounded-lg border border-neutral-200 bg-white/95 p-3 text-xs shadow-sm backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95">
-                            <p className="text-[11px] font-semibold text-neutral-700 dark:text-neutral-200">
-                              Periode: {label}
-                            </p>
-                            <p className="mt-2 text-[11px] text-neutral-500">
-                              Total semua
-                            </p>
-                            <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                              {formatNumber(total ?? 0)}
-                            </p>
-                            <div className="mt-2 space-y-1">
-                              {produkTotals.length === 0 ? (
-                                <p className="text-[11px] text-neutral-400">
-                                  Belum ada data produk
-                                </p>
-                              ) : (
-                                produkTotals.map((item) => (
-                                  <div
-                                    key={`${periode}-${item.produk}`}
-                                    className="flex items-center justify-between gap-3"
-                                  >
-                                    <span className="text-[11px] text-neutral-500">
-                                      {formatProduk(item.produk)}
-                                    </span>
-                                    <span className="text-[11px] font-medium text-neutral-800 dark:text-neutral-100">
-                                      {formatNumber(item.total)}
-                                    </span>
-                                  </div>
-                                ))
-                              )}
-                            </div>
-                          </div>
-                        );
+            <div className="mt-4">
+              {penjualanPerPeriode.length === 0 ? (
+                <div className="rounded-lg border border-dashed border-neutral-200 p-6 text-center text-sm text-neutral-400 dark:border-neutral-800">
+                  Belum ada data penjualan untuk ditampilkan.
+                </div>
+              ) : (
+                <div className="h-80 rounded-lg border border-neutral-300/70 bg-gradient-to-br from-white via-sky-100/50 to-amber-100/40 p-2 shadow-sm [--chart-axis:#475569] [--chart-bar-soft:#7dd3fc] [--chart-bar:#1d4ed8] [--chart-cursor:rgba(29,78,216,0.16)] [--chart-grid:#cbd5f5] dark:border-neutral-700/70 dark:bg-gradient-to-br dark:from-neutral-950 dark:via-slate-900/70 dark:to-slate-900/80 dark:[--chart-axis:#cbd5f5] dark:[--chart-bar-soft:#38bdf8] dark:[--chart-bar:#60a5fa] dark:[--chart-cursor:rgba(96,165,250,0.24)] dark:[--chart-grid:#1f2937]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={chartData}
+                      margin={{
+                        top: 12,
+                        right: 16,
+                        left: 4,
+                        bottom: 6,
                       }}
-                    />
-                    <Bar
-                      dataKey="total"
-                      fill="url(#penjualanGradient)"
-                      radius={[10, 10, 6, 6]}
-                      barSize={28}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
+                    >
+                      <defs>
+                        <linearGradient
+                          id="penjualanGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop offset="0%" stopColor="var(--chart-bar)" />
+                          <stop offset="100%" stopColor="var(--chart-bar-soft)" />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid
+                        stroke="var(--chart-grid)"
+                        strokeDasharray="4 4"
+                        vertical={false}
+                      />
+                      <XAxis
+                        dataKey="label"
+                        tick={{ fontSize: 10, fill: 'var(--chart-axis)' }}
+                        interval="preserveStartEnd"
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 10, fill: 'var(--chart-axis)' }}
+                        tickFormatter={formatNumber}
+                        axisLine={false}
+                        tickLine={false}
+                        width={30}
+                      />
+                      <Tooltip
+                        cursor={{ fill: 'var(--chart-cursor)' }}
+                        content={({ active, payload, label }) => {
+                          if (!active || !payload || payload.length === 0) {
+                            return null;
+                          }
+
+                          const periode = payload[0]?.payload?.periode as
+                            | string
+                            | undefined;
+                          const produkTotals = periode
+                            ? (produkPerPeriodeMap[periode] ?? [])
+                            : [];
+                          const total = payload[0]?.value as number | undefined;
+
+                          return (
+                            <div className="rounded-lg border border-neutral-200 bg-white/95 p-3 text-xs shadow-sm backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95">
+                              <p className="text-[11px] font-semibold text-neutral-700 dark:text-neutral-200">
+                                Periode: {label}
+                              </p>
+                              <p className="mt-2 text-[11px] text-neutral-500">
+                                Total semua
+                              </p>
+                              <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                                {formatNumber(total ?? 0)}
+                              </p>
+                              <div className="mt-2 space-y-1">
+                                {produkTotals.length === 0 ? (
+                                  <p className="text-[11px] text-neutral-400">
+                                    Belum ada data produk
+                                  </p>
+                                ) : (
+                                  produkTotals.map((item) => (
+                                    <div
+                                      key={`${periode}-${item.produk}`}
+                                      className="flex items-center justify-between gap-3"
+                                    >
+                                      <span className="text-[11px] text-neutral-500">
+                                        {formatProduk(item.produk)}
+                                      </span>
+                                      <span className="text-[11px] font-medium text-neutral-800 dark:text-neutral-100">
+                                        {formatNumber(item.total)}
+                                      </span>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
+                            </div>
+                          );
+                        }}
+                      />
+                      <Bar
+                        dataKey="total"
+                        fill="url(#penjualanGradient)"
+                        radius={[10, 10, 6, 6]}
+                        barSize={20}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
           </div>
+
+          {canSeePeramalan && (
+            <div className="rounded-xl border border-sidebar-border/80 bg-gradient-to-br from-white via-slate-100/70 to-amber-100/50 p-4 shadow-md ring-1 ring-black/10 dark:border-sidebar-border dark:bg-gradient-to-br dark:from-neutral-950 dark:via-slate-900/70 dark:to-slate-900/80 dark:ring-white/20">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                    Grafik Peramalan
+                  </h2>
+                  <p className="text-xs text-neutral-400">
+                    Menampilkan hasil peramalan
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                {peramalanChartData.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-neutral-200 p-6 text-center text-sm text-neutral-400 dark:border-neutral-800">
+                    Belum ada data peramalan untuk ditampilkan.
+                  </div>
+                ) : (
+                  <div className="h-80 rounded-lg border border-neutral-300/70 bg-gradient-to-br from-white via-amber-100/50 to-sky-100/40 p-2 shadow-sm [--chart-axis:#475569] [--chart-bar-soft:#fde047] [--chart-bar:#ca8a04] [--chart-cursor:rgba(202,138,4,0.16)] [--chart-grid:#cbd5f5] dark:border-neutral-700/70 dark:bg-gradient-to-br dark:from-neutral-950 dark:via-slate-900/70 dark:to-slate-900/80 dark:[--chart-axis:#cbd5f5] dark:[--chart-bar-soft:#fde047] dark:[--chart-bar:#ca8a04] dark:[--chart-cursor:rgba(253,224,71,0.24)] dark:[--chart-grid:#1f2937]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={peramalanChartData}
+                        margin={{
+                          top: 12,
+                          right: 16,
+                          left: 4,
+                          bottom: 6,
+                        }}
+                      >
+                        <defs>
+                          <linearGradient
+                            id="peramalanGradient"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop offset="0%" stopColor="var(--chart-bar)" />
+                            <stop offset="100%" stopColor="var(--chart-bar-soft)" />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid
+                          stroke="var(--chart-grid)"
+                          strokeDasharray="4 4"
+                          vertical={false}
+                        />
+                        <XAxis
+                          dataKey="label"
+                          tick={{ fontSize: 10, fill: 'var(--chart-axis)' }}
+                          interval="preserveStartEnd"
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          tick={{ fontSize: 10, fill: 'var(--chart-axis)' }}
+                          tickFormatter={formatNumber}
+                          axisLine={false}
+                          tickLine={false}
+                          width={30}
+                        />
+                        <Tooltip
+                          cursor={{ fill: 'var(--chart-cursor)' }}
+                          content={({ active, payload, label }) => {
+                            if (!active || !payload || payload.length === 0) {
+                              return null;
+                            }
+
+                            const periode = payload[0]?.payload?.periode as
+                              | string
+                              | undefined;
+                            const produkTotals = periode
+                              ? (peramalanProdukPerPeriodeMap[periode] ?? [])
+                              : [];
+                            const total = payload[0]?.value as number | undefined;
+
+                            return (
+                              <div className="rounded-lg border border-neutral-200 bg-white/95 p-3 text-xs shadow-sm backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95">
+                                <p className="text-[11px] font-semibold text-neutral-700 dark:text-neutral-200">
+                                  Periode: {label}
+                                </p>
+                                <p className="mt-2 text-[11px] text-neutral-500">
+                                  Total semua
+                                </p>
+                                <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                                  {formatNumber(total ?? 0)}
+                                </p>
+                                <div className="mt-2 space-y-1">
+                                  {produkTotals.length === 0 ? (
+                                    <p className="text-[11px] text-neutral-400">
+                                      Belum ada data produk
+                                    </p>
+                                  ) : (
+                                    produkTotals.map((item) => (
+                                      <div
+                                        key={`${periode}-${item.produk}`}
+                                        className="flex items-center justify-between gap-3"
+                                      >
+                                        <span className="text-[11px] text-neutral-500">
+                                          {formatProduk(item.produk)}
+                                        </span>
+                                        <span className="text-[11px] font-medium text-neutral-800 dark:text-neutral-100">
+                                          {formatNumber(item.total)}
+                                        </span>
+                                      </div>
+                                    ))
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          }}
+                        />
+                        <Bar
+                          dataKey="total"
+                          fill="url(#peramalanGradient)"
+                          radius={[10, 10, 6, 6]}
+                          barSize={20}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </AppLayout>

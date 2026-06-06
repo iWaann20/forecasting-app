@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataPeramalan;
+use App\Models\Produk;
 use App\Services\Peramalan\PeramalanService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
@@ -15,15 +16,15 @@ class PeramalanController extends Controller
 {
     public function index(Request $request): Response
     {
-        $produk = $request->query('produk');
+        $produkId = $request->query('produk');
         $bulan = $request->query('bulan');
         $tahun = $request->query('tahun');
         $preview = $request->session()->get('peramalan_preview');
         $cetakPreview = $request->session()->get('peramalan_cetak_preview');
-        $query = DataPeramalan::query();
+        $query = DataPeramalan::with('produk');
 
-        if ($produk) {
-            $query->where('nama_produk', $produk);
+        if ($produkId) {
+            $query->where('produk_id', $produkId);
         }
 
         if ($bulan) {
@@ -40,8 +41,9 @@ class PeramalanController extends Controller
             ->withQueryString()
             ->through(fn ($row) => [
                 'id' => $row->peramalan_id,
+                'produk_id' => $row->produk_id,
                 'periode' => $row->periode_awal?->format('Y-m'),
-                'produk' => $row->nama_produk,
+                'produk' => $row->produk->nama_produk,
                 'nilai' => (int) $row->nilai_peramalan,
             ]);
 
@@ -53,7 +55,7 @@ class PeramalanController extends Controller
             'preview' => $preview,
             'cetakPreview' => $cetakPreview,
             'filters' => [
-                'produk' => $produk,
+                'produk' => $produkId,
                 'bulan' => $bulan,
                 'tahun' => $tahun,
             ],
@@ -107,11 +109,11 @@ class PeramalanController extends Controller
 
     public function cetakPreview(Request $request): RedirectResponse
     {
-        [$produk, $bulan, $tahun] = $this->extractFilters($request);
-        $query = DataPeramalan::query();
+        [$produkId, $bulan, $tahun] = $this->extractFilters($request);
+        $query = DataPeramalan::with('produk');
 
-        if ($produk) {
-            $query->where('nama_produk', $produk);
+        if ($produkId) {
+            $query->where('produk_id', $produkId);
         }
 
         if ($bulan) {
@@ -128,7 +130,7 @@ class PeramalanController extends Controller
             ->map(fn ($row) => [
                 'id' => $row->peramalan_id,
                 'periode' => $row->periode_awal?->format('Y-m'),
-                'produk' => $row->nama_produk,
+                'produk' => $row->produk->nama_produk,
                 'alpha' => $row->alpha !== null ? (float) $row->alpha : null,
                 'mse' => $row->mse !== null ? (float) $row->mse : null,
                 'mad' => $row->mad !== null ? (float) $row->mad : null,
@@ -136,9 +138,17 @@ class PeramalanController extends Controller
             ])
             ->all();
 
+        // Get product name for display if filtered
+        $produkName = null;
+        if ($produkId) {
+            $p = Produk::find($produkId);
+            $produkName = $p ? $p->nama_produk : null;
+        }
+
         $request->session()->put('peramalan_cetak_preview', [
             'filters' => [
-                'produk' => $produk,
+                'produk' => $produkId, // Keep ID for logic
+                'produk_name' => $produkName, // Add name for display
                 'bulan' => $bulan,
                 'tahun' => $tahun,
             ],
@@ -162,13 +172,21 @@ class PeramalanController extends Controller
         $items = is_array($preview) ? ($preview['items'] ?? []) : [];
 
         if (empty($items)) {
-            [$produk, $bulan, $tahun] = $this->extractFilters($request);
+            [$produkId, $bulan, $tahun] = $this->extractFilters($request);
+            
+            $produkName = null;
+            if ($produkId) {
+                $p = Produk::find($produkId);
+                $produkName = $p ? $p->nama_produk : null;
+            }
+
             $filters = [
-                'produk' => $produk,
+                'produk' => $produkId,
+                'produk_name' => $produkName,
                 'bulan' => $bulan,
                 'tahun' => $tahun,
             ];
-            $items = $this->buildCetakItems($produk, $bulan, $tahun);
+            $items = $this->buildCetakItems($produkId, $bulan, $tahun);
         }
 
         $pdf = Pdf::loadView('prints.peramalan', [
@@ -190,12 +208,12 @@ class PeramalanController extends Controller
         return [$produk, $bulan, $tahun];
     }
 
-    private function buildCetakItems(?string $produk, ?string $bulan, ?string $tahun): array
+    private function buildCetakItems(?string $produkId, ?string $bulan, ?string $tahun): array
     {
-        $query = DataPeramalan::query();
+        $query = DataPeramalan::with('produk');
 
-        if ($produk) {
-            $query->where('nama_produk', $produk);
+        if ($produkId) {
+            $query->where('produk_id', $produkId);
         }
 
         if ($bulan) {
@@ -212,7 +230,7 @@ class PeramalanController extends Controller
             ->map(fn ($row) => [
                 'id' => $row->peramalan_id,
                 'periode' => $row->periode_awal?->format('Y-m'),
-                'produk' => $row->nama_produk,
+                'produk' => $row->produk->nama_produk,
                 'alpha' => $row->alpha !== null ? (float) $row->alpha : null,
                 'mse' => $row->mse !== null ? (float) $row->mse : null,
                 'mad' => $row->mad !== null ? (float) $row->mad : null,
@@ -246,11 +264,10 @@ class PeramalanController extends Controller
 
     public static function produkOptions(): array
     {
-        return DataPeramalan::query()
-            ->select('nama_produk')
-            ->distinct()
+        return Produk::query()
             ->orderBy('nama_produk')
-            ->pluck('nama_produk')
+            ->get()
+            ->map(fn($p) => ['id' => $p->produk_id, 'nama' => $p->nama_produk])
             ->all();
     }
 

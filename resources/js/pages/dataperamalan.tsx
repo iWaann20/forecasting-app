@@ -49,9 +49,14 @@ type PeramalanPage = {
   last_page: number;
 };
 
+type ProdukOption = {
+  id: string;
+  nama: string;
+};
+
 type DataPeramalanProps = {
   peramalan: PeramalanPage;
-  produkOptions: string[];
+  produkOptions: ProdukOption[];
   bulanOptions: string[];
   tahunOptions: string[];
   preview: PreviewData | null;
@@ -67,6 +72,7 @@ type PreviewItem = {
   peramalan_id: string;
   periode_awal: string;
   periode_akhir: string;
+  produk_id: string;
   nama_produk: string;
   nilai_peramalan: number;
   alpha: number;
@@ -93,6 +99,7 @@ type CetakItem = {
 type CetakPreview = {
   filters: {
     produk?: string | null;
+    produk_name?: string | null;
     bulan?: string | null;
     tahun?: string | null;
   };
@@ -143,11 +150,6 @@ export default function DataPeramalan() {
     }
 
     return value;
-  };
-
-  const formatProduk = (value: string) => {
-    const normalized = value.replaceAll('_', ' ').toLowerCase();
-    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
   };
 
   const formatBulan = (value: string) => {
@@ -322,8 +324,8 @@ export default function DataPeramalan() {
                     </SelectItem>
                   ) : (
                     produkOptions.map((produk) => (
-                      <SelectItem key={produk} value={produk}>
-                        {formatProduk(produk)}
+                      <SelectItem key={produk.id} value={produk.id}>
+                        {produk.nama}
                       </SelectItem>
                     ))
                   )}
@@ -450,7 +452,7 @@ export default function DataPeramalan() {
                           {formatPeriode(row.periode)}
                         </td>
                         <td className="px-3 py-2.5 text-neutral-700 dark:text-neutral-200">
-                          {formatProduk(row.produk)}
+                          {row.produk}
                         </td>
                         <td className="px-3 py-2.5 text-right text-neutral-700 dark:text-neutral-200">
                           {formatNumber(row.nilai)}

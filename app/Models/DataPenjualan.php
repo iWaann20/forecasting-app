@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DataPenjualan extends Model
 {
@@ -16,8 +17,8 @@ class DataPenjualan extends Model
 
     protected $fillable = [
         'penjualan_id',
+        'produk_id',
         'tanggal',
-        'nama_produk',
         'jumlah_terjual',
     ];
 
@@ -26,5 +27,10 @@ class DataPenjualan extends Model
         'jumlah_terjual' => 'integer',
     ];
 
-    // If you later add a products table, you can replace this with a relation.
+    protected $with = ['produk'];
+
+    public function produk(): BelongsTo
+    {
+        return $this->belongsTo(Produk::class, 'produk_id', 'produk_id');
+    }
 }

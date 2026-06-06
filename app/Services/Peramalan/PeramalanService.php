@@ -4,6 +4,7 @@ namespace App\Services\Peramalan;
 
 use App\Models\DataPenjualan;
 use App\Models\DataPeramalan;
+use App\Models\Produk;
 use App\Services\Peramalan\SESService;
 use App\Services\Peramalan\EvaluasiService;
 use Carbon\Carbon;
@@ -32,9 +33,9 @@ class PeramalanService
 		$forecastEnd = $end->copy()->addMonthNoOverflow()->endOfMonth();
 		$results = [];
 
-		foreach ($this->produkList() as $produk) {
+		foreach ($this->produkList() as $produkId) {
 			$results[] = $this->hitungProdukPreview(
-				$produk,
+				$produkId,
 				$start,
 				$end,
 				$forecastStart,
@@ -63,14 +64,14 @@ class PeramalanService
 	 * @return array<string, mixed>
 	 */
 	private function hitungProdukPreview(
-		string $produk,
+		string $produkId,
 		Carbon $start,
 		Carbon $end,
 		Carbon $forecastStart,
 		Carbon $forecastEnd,
 	): array {
 		$periodeList = $this->buildPeriodeList($start, $end);
-		$actuals = $this->loadActuals($produk, $start, $end, $periodeList);
+		$actuals = $this->loadActuals($produkId, $start, $end, $periodeList);
 
 		$bestAlpha = 0.1;
 		$bestMse = null;
@@ -102,7 +103,7 @@ class PeramalanService
 		}
 
 		Log::info('SES alpha trials', [
-			'produk' => $produk,
+			'produk_id' => $produkId,
 			'periode_awal' => $start->toDateString(),
 			'periode_akhir' => $end->toDateString(),
 			'trials' => $trialLogs,
@@ -117,11 +118,14 @@ class PeramalanService
 		$nextForecast = $this->sesService->forecastNext($actuals, $bestAlpha);
 		$evaluasi = $this->evaluasiService->evaluate($actuals, $forecasts);
 
+		$produk = Produk::find($produkId);
+
 		return [
 			'peramalan_id' => (string) Str::uuid(),
 			'periode_awal' => $forecastStart->toDateString(),
 			'periode_akhir' => $forecastEnd->toDateString(),
-			'nama_produk' => $produk,
+			'produk_id' => $produkId,
+			'nama_produk' => $produk ? $produk->nama_produk : 'Unknown', // for preview only
 			'nilai_peramalan' => $nextForecast !== null ? (int) round($nextForecast) : 0,
 			'alpha' => $bestAlpha,
 			'mad' => $evaluasi['mad'],
@@ -134,11 +138,9 @@ class PeramalanService
 	 */
 	private function produkList(): array
 	{
-		return DataPenjualan::query()
-			->select('nama_produk')
-			->distinct()
-			->orderBy('nama_produk')
-			->pluck('nama_produk')
+		return Produk::query()
+			->select('produk_id')
+			->pluck('produk_id')
 			->all();
 	}
 
@@ -160,7 +162,7 @@ class PeramalanService
 	 * @param  array<int, string>  $periodeList
 	 * @return array<int, float>
 	 */
-	private function loadActuals(string $produk, Carbon $start, Carbon $end, array $periodeList): array
+	private function loadActuals(string $produkId, Carbon $start, Carbon $end, array $periodeList): array
 	{
 		$driver = DB::connection()->getDriverName();
 		$periodeExpression = match ($driver) {
@@ -171,7 +173,7 @@ class PeramalanService
 
 		$rows = DataPenjualan::query()
 			->select(DB::raw("{$periodeExpression} as periode"), DB::raw('SUM(jumlah_terjual) as total'))
-			->where('nama_produk', $produk)
+			->where('produk_id', $produkId)
 			->whereDate('tanggal', '>=', $start->toDateString())
 			->whereDate('tanggal', '<=', $end->toDateString())
 			->groupBy('periode')
@@ -188,3 +190,4 @@ class PeramalanService
 		return $actuals;
 	}
 }
+

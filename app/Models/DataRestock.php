@@ -6,36 +6,26 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class DataPeramalan extends Model
+class DataRestock extends Model
 {
     use HasFactory;
 
-    protected $table = 'data_peramalan';
-    protected $primaryKey = 'peramalan_id';
+    protected $table = 'data_restock';
+    protected $primaryKey = 'restock_id';
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
-        'peramalan_id',
+        'restock_id',
         'produk_id',
-        'periode_awal',
-        'periode_akhir',
-        'nilai_peramalan',
-        'alpha',
-        'mad',
-        'mse',
+        'tanggal',
+        'jumlah_restock',
     ];
 
     protected $casts = [
-        'periode_awal' => 'date',
-        'periode_akhir' => 'date',
-        'nilai_peramalan' => 'integer',
-        'alpha' => 'float',
-        'mad' => 'float',
-        'mse' => 'float',
+        'tanggal' => 'date',
+        'jumlah_restock' => 'integer',
     ];
-
-    protected $with = ['produk'];
 
     public function produk(): BelongsTo
     {

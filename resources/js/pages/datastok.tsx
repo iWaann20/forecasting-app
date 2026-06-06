@@ -11,18 +11,18 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
-import TambahPenjualanModal from '@/pages/modal/tambahpenjualan';
-import { datapenjualan } from '@/routes';
+import { datastok } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
+import StokFormModal from '@/pages/modal/stok-form';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
-    title: 'Data Penjualan',
-    href: datapenjualan().url,
+    title: 'Data Stok (Restock)',
+    href: datastok().url,
   },
 ];
 
-type PenjualanItem = {
+type StokItem = {
   id: string;
   produk_id: string;
   tanggal: string | null;
@@ -36,8 +36,8 @@ type PaginationLink = {
   active: boolean;
 };
 
-type PenjualanPage = {
-  data: PenjualanItem[];
+type StokPage = {
+  data: StokItem[];
   links: PaginationLink[];
   current_page: number;
   last_page: number;
@@ -46,12 +46,10 @@ type PenjualanPage = {
 type ProdukOption = {
   id: string;
   nama: string;
-  stok: number;
-  stok_minimum: number;
 };
 
-type DataPenjualanProps = {
-  penjualan: PenjualanPage;
+type DataStokProps = {
+  restock: StokPage;
   produkOptions: ProdukOption[];
   bulanOptions: string[];
   tahunOptions: string[];
@@ -62,11 +60,11 @@ type DataPenjualanProps = {
   };
 };
 
-export default function DataPenjualan() {
-  const { penjualan, produkOptions, bulanOptions, tahunOptions, filters } =
-    usePage<DataPenjualanProps>().props;
-  const [showTambahModal, setShowTambahModal] = useState(false);
-  const [editData, setEditData] = useState<PenjualanItem | null>(null);
+export default function DataStok() {
+  const { restock, produkOptions, bulanOptions, tahunOptions, filters } =
+    usePage<DataStokProps>().props;
+  const [showModal, setShowModal] = useState(false);
+  const [editData, setEditData] = useState<StokItem | null>(null);
 
   const formatTanggal = (value: string | null) => {
     if (!value) {
@@ -120,7 +118,7 @@ export default function DataPenjualan() {
       query.tahun = tahun;
     }
 
-    router.get(datapenjualan().url, query, {
+    router.get(datastok().url, query, {
       preserveState: true,
       replace: true,
     });
@@ -130,7 +128,7 @@ export default function DataPenjualan() {
     const result = await Swal.fire({
       icon: 'warning',
       title: 'Hapus data?',
-      text: 'Data penjualan yang dihapus tidak bisa dikembalikan.',
+      text: 'Data restock yang dihapus akan mengurangi jumlah stok produk.',
       showCancelButton: true,
       confirmButtonText: 'Hapus',
       cancelButtonText: 'Batal',
@@ -141,13 +139,13 @@ export default function DataPenjualan() {
       return;
     }
 
-    router.delete(`/datapenjualan/${id}`, {
+    router.delete(`/datastok/${id}`, {
       preserveScroll: true,
       onSuccess: () => {
         void Swal.fire({
           icon: 'success',
           title: 'Terhapus',
-          text: 'Data penjualan berhasil dihapus.',
+          text: 'Data restock berhasil dihapus.',
           timer: 1500,
           showConfirmButton: false,
         });
@@ -155,17 +153,17 @@ export default function DataPenjualan() {
     });
   };
 
-  const handleEdit = (row: PenjualanItem) => {
+  const handleEdit = (row: StokItem) => {
     setEditData(row);
-    setShowTambahModal(true);
+    setShowModal(true);
   };
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Data Penjualan" />
+      <Head title="Data Stok" />
       <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-          Data Penjualan
+          Data Stok (Restock)
         </h1>
 
         <div className="rounded-xl border border-sidebar-border/80 bg-gradient-to-br from-white via-slate-50/70 to-amber-50/40 p-4 shadow-md ring-1 ring-black/10 dark:border-sidebar-border dark:bg-gradient-to-br dark:from-neutral-950 dark:via-slate-900/70 dark:to-slate-900/80 dark:ring-white/15">
@@ -254,7 +252,7 @@ export default function DataPenjualan() {
               className="h-9 cursor-pointer bg-sky-600 text-white shadow-sm hover:bg-sky-500 dark:bg-amber-400 dark:text-neutral-950 dark:hover:bg-amber-300"
               onClick={() => {
                 setEditData(null);
-                setShowTambahModal(true);
+                setShowModal(true);
               }}
             >
               Tambah
@@ -274,23 +272,23 @@ export default function DataPenjualan() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
-                  {penjualan.data.length === 0 ? (
+                  {restock.data.length === 0 ? (
                     <tr>
                       <td
                         colSpan={5}
                         className="px-3 py-10 text-center text-sm text-neutral-400"
                       >
-                        Belum ada data penjualan.
+                        Belum ada data restock.
                       </td>
                     </tr>
                   ) : (
-                    penjualan.data.map((row, index) => (
+                    restock.data.map((row, index) => (
                       <tr
                         key={row.id}
                         className="transition-colors odd:bg-white even:bg-slate-50/60 hover:bg-sky-50/60 dark:odd:bg-neutral-900 dark:even:bg-neutral-900/60 dark:hover:bg-sky-900/20"
                       >
                         <td className="px-3 py-2.5 text-neutral-700 dark:text-neutral-200">
-                          {(penjualan.current_page - 1) * 10 + index + 1}
+                          {(restock.current_page - 1) * 10 + index + 1}
                         </td>
                         <td className="px-3 py-2.5 text-neutral-700 dark:text-neutral-200">
                           {formatTanggal(row.tanggal)}
@@ -329,9 +327,9 @@ export default function DataPenjualan() {
             </div>
           </div>
 
-          {penjualan.links.length > 0 && (
+          {restock.links.length > 0 && (
             <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
-              {penjualan.links.map((link) => {
+              {restock.links.map((link) => {
                 if (!link.url) {
                   return (
                     <span
@@ -362,10 +360,10 @@ export default function DataPenjualan() {
           )}
         </div>
       </div>
-      <TambahPenjualanModal
-        isOpen={showTambahModal}
+      <StokFormModal
+        isOpen={showModal}
         onClose={() => {
-          setShowTambahModal(false);
+          setShowModal(false);
           setEditData(null);
         }}
         produkOptions={produkOptions}
