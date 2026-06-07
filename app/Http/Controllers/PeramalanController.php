@@ -43,7 +43,12 @@ class PeramalanController extends Controller
                 'id' => $row->peramalan_id,
                 'produk_id' => $row->produk_id,
                 'periode' => $row->periode_awal?->format('Y-m'),
+                'periode_awal' => $row->periode_awal?->format('Y-m'),
+                'periode_akhir' => $row->periode_akhir?->format('Y-m'),
                 'produk' => $row->produk->nama_produk,
+                'alpha' => $row->alpha,
+                'mad' => $row->mad,
+                'mse' => $row->mse,
                 'nilai' => (int) $row->nilai_peramalan,
             ]);
 

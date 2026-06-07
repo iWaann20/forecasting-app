@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Calculator, Printer, Trash2 } from 'lucide-react';
+import { Calculator, Info, Printer, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/app-layout';
+import DetailPeramalanModal from '@/pages/modal/detailperamalan';
 import HitungPeramalanModal from '@/pages/modal/hitungperamalan';
 import PreviewCetakModal from '@/pages/modal/previewcetak';
 import PreviewPeramalanModal from '@/pages/modal/previewperamalan';
@@ -32,7 +33,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 type PeramalanItem = {
   id: string;
   periode: string | null;
+  periode_awal: string | null;
+  periode_akhir: string | null;
   produk: string;
+  alpha: number | null;
+  mad: number | null;
+  mse: number | null;
   nilai: number;
 };
 
@@ -119,6 +125,13 @@ export default function DataPeramalan() {
   const [showHitungModal, setShowHitungModal] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(Boolean(preview));
   const [showCetakModal, setShowCetakModal] = useState(Boolean(cetakPreview));
+  const [detailData, setDetailData] = useState<PeramalanItem | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
+  const handleShowDetail = (data: PeramalanItem) => {
+    setDetailData(data);
+    setShowDetailModal(true);
+  };
 
   useEffect(() => {
     setShowPreviewModal(Boolean(preview));
@@ -458,14 +471,24 @@ export default function DataPeramalan() {
                           {formatNumber(row.nilai)}
                         </td>
                         <td className="px-3 py-2.5 text-center">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8 border-rose-200 text-rose-600 hover:border-rose-300 hover:text-rose-700 dark:border-rose-900/50 dark:text-rose-300"
-                            onClick={() => handleDelete(row.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="flex items-center justify-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8 border-sky-200 text-sky-600 hover:border-sky-300 hover:text-sky-700 dark:border-sky-900/50 dark:text-sky-300"
+                              onClick={() => handleShowDetail(row)}
+                            >
+                              <Info className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8 border-rose-200 text-rose-600 hover:border-rose-300 hover:text-rose-700 dark:border-rose-900/50 dark:text-rose-300"
+                              onClick={() => handleDelete(row.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -523,6 +546,11 @@ export default function DataPeramalan() {
         preview={cetakPreview}
         onClose={handleCetakCancel}
         onPrint={handleCetakPrint}
+      />
+      <DetailPeramalanModal
+        isOpen={showDetailModal}
+        data={detailData}
+        onClose={() => setShowDetailModal(false)}
       />
     </AppLayout>
   );
