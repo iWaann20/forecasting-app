@@ -11,7 +11,7 @@ class StokService
 {
     public static function notifyStokMinimum(Produk $produk)
     {
-        // Get all users (pemilik and karyawan)
+        // Get all users (Pemilik Usaha and Staff)
         $users = Pengguna::all();
         
         foreach ($users as $user) {
@@ -39,8 +39,8 @@ class StokService
 
     public static function notifyPemilikActivity(string $tipe, string $judul, string $pesan, string $referenceType, string $referenceId)
     {
-        // Only notify 'pemilik' role
-        $pemiliks = Pengguna::where('role', 'pemilik')->get();
+        // Only notify 'Pemilik Usaha' role
+        $pemiliks = Pengguna::where('role', 'Pemilik Usaha')->get();
 
         foreach ($pemiliks as $pemilik) {
             Notifikasi::create([

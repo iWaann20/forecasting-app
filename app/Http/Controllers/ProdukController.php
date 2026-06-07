@@ -34,7 +34,7 @@ class ProdukController extends Controller
             'filters' => [
                 'search' => $search,
             ],
-            'canManage' => $request->user()?->role === 'pemilik',
+            'canManage' => $request->user()?->role === 'Pemilik Usaha',
         ]);
     }
 

@@ -55,7 +55,7 @@ const inactiveItemStyles =
 export function AppHeader({ breadcrumbs = [] }: Props) {
   const page = usePage<SharedData>();
   const { auth } = page.props;
-  const isPemilik = auth?.user?.role === 'pemilik';
+  const isPemilik = auth?.user?.role === 'Pemilik Usaha';
 
   const navItems: NavItem[] = [
     {

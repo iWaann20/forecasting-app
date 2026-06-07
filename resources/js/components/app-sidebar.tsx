@@ -31,7 +31,7 @@ const footerNavItems: NavItem[] = [
 
 export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
-    const isPemilik = auth?.user?.role === 'pemilik';
+    const isPemilik = auth?.user?.role === 'Pemilik Usaha';
 
     const mainNavItems: NavItem[] = [
         {

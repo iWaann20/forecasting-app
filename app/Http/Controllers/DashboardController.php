@@ -13,7 +13,7 @@ class DashboardController extends Controller
 {
     public function __invoke(Request $request): Response
     {
-        $isPemilik = $request->user()?->role === 'pemilik';
+        $isPemilik = $request->user()?->role === 'Pemilik Usaha';
         $produkId = $request->query('produk');
         $tahun = $request->query('tahun');
 

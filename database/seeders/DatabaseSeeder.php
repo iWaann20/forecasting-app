@@ -18,16 +18,16 @@ class DatabaseSeeder extends Seeder
         // Seed Pengguna
         Pengguna::create([
             'pengguna_id' => Str::uuid(),
-            'username' => 'pemilik',
+            'username' => 'Pemilik Usaha',
             'password' => Hash::make('password'),
-            'role' => 'pemilik',
+            'role' => 'Pemilik Usaha',
         ]);
 
         Pengguna::create([
             'pengguna_id' => Str::uuid(),
-            'username' => 'karyawan',
+            'username' => 'Staff',
             'password' => Hash::make('password'),
-            'role' => 'karyawan',
+            'role' => 'Staff',
         ]);
 
         // Seed Produk

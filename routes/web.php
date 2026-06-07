@@ -31,7 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('dataproduk', [ProdukController::class, 'index'])->name('dataproduk');
-    Route::middleware('role:pemilik')->group(function () {
+    Route::middleware('role:Pemilik Usaha')->group(function () {
         Route::post('dataproduk', [ProdukController::class, 'store'])->name('dataproduk.store');
         Route::patch('dataproduk/{produk}', [ProdukController::class, 'update'])->name('dataproduk.update');
         Route::delete('dataproduk/{produk}', [ProdukController::class, 'destroy'])->name('dataproduk.destroy');
@@ -57,7 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('profile/photo', [PenggunaController::class, 'deleteProfile'])->name('profile.photo.delete');
 });
 
-Route::middleware(['auth', 'verified', 'role:pemilik'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:Pemilik Usaha'])->group(function () {
     Route::get('dataperamalan', [PeramalanController::class, 'index'])
         ->name('dataperamalan');
     Route::post('dataperamalan/hitung', [PeramalanController::class, 'hitung'])
