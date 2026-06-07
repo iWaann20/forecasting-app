@@ -345,9 +345,9 @@ export function UserProfileModal({ isOpen, onClose, user }: Props) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-hidden border border-neutral-200/80 bg-amber-50/70 p-0 shadow-lg sm:max-w-lg dark:border-neutral-800/80 dark:bg-[#0a1220]">
-        <div className="max-h-[85vh] overflow-y-auto p-5">
-          <DialogHeader className="space-y-1">
+      <DialogContent className="max-h-[85vh] w-[95vw] overflow-hidden border border-neutral-200/80 bg-white p-0 shadow-lg sm:max-w-3xl dark:border-neutral-800/80 dark:bg-[#0a1220]">
+        <div className="max-h-[90vh] overflow-y-auto p-3 sm:p-4">
+          <DialogHeader className="mb-1 space-y-1">
             <DialogTitle className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
               Edit Profil
             </DialogTitle>
@@ -356,20 +356,23 @@ export function UserProfileModal({ isOpen, onClose, user }: Props) {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-4 space-y-4">
-            <div className="rounded-lg border border-neutral-200/80 bg-white/70 p-3 text-center shadow-xs dark:border-neutral-800/80 dark:bg-neutral-950/40">
-              <Avatar className="mx-auto h-18 w-18 rounded-full">
+          <div className="flex flex-col gap-5 md:flex-row">
+            {/* Kiri: Foto Profil */}
+            <div className="flex w-full flex-col items-center gap-4 md:w-1/3 md:pt-2">
+              <Avatar className="h-32 w-32 rounded-full shadow-sm">
                 <AvatarImage
                   src={
                     photoPreview ??
                     (photoRemoved ? undefined : (avatarUrl ?? undefined))
                   }
                   alt={displayName}
+                  className="object-cover"
                 />
-                <AvatarFallback className="rounded-full bg-neutral-400 text-xl text-neutral-900 dark:bg-neutral-700 dark:text-white">
+                <AvatarFallback className="rounded-full bg-neutral-400 text-4xl text-neutral-900 dark:bg-neutral-700 dark:text-white">
                   {initials(displayName)}
                 </AvatarFallback>
               </Avatar>
+              
               <input
                 ref={fileInputRef}
                 type="file"
@@ -377,36 +380,38 @@ export function UserProfileModal({ isOpen, onClose, user }: Props) {
                 className="hidden"
                 onChange={handlePhotoChange}
               />
-              <div className="mt-4 flex justify-center gap-2">
+              
+              <div className="flex w-full flex-col gap-2">
                 <Button
                   type="button"
-                  size="sm"
                   variant="outline"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={photoProcessing}
+                  className="w-full"
                 >
                   Upload Foto
                 </Button>
                 <Button
                   type="button"
-                  size="sm"
                   variant="destructive"
                   onClick={handleRemovePhoto}
                   disabled={!canRemovePhoto || photoProcessing}
+                  className="w-full"
                 >
                   Hapus Foto
                 </Button>
               </div>
               {photoError && (
-                <InputError className="mt-2" message={photoError} />
+                <InputError className="mt-1 text-center" message={photoError} />
               )}
             </div>
 
+            {/* Kanan: Form Profil */}
             <form
-              className="rounded-lg bg-white/70 p-4 shadow-sm dark:bg-neutral-900/50"
+              className="flex-1 space-y-3"
               onSubmit={handleSave}
             >
-              <div className="grid gap-2">
+              <div className="grid gap-1.5">
                 <Label htmlFor="username">Username</Label>
                 <Input
                   id="username"
@@ -419,124 +424,132 @@ export function UserProfileModal({ isOpen, onClose, user }: Props) {
                 <InputError message={usernameError ?? undefined} />
               </div>
 
-              <div className="mt-4 space-y-3">
-                <div className="grid gap-2">
-                  <Label htmlFor="current_password">Password saat ini</Label>
-                  <div className="relative">
-                    <Input
-                      id="current_password"
-                      ref={currentPasswordInput}
-                      name="current_password"
-                      type={showCurrentPassword ? 'text' : 'password'}
-                      autoComplete="current-password"
-                      placeholder="Password saat ini"
-                      className="pr-10"
-                      value={passwordForm.data.current_password}
-                      onChange={(event) =>
-                        passwordForm.setData(
-                          'current_password',
-                          event.target.value,
-                        )
-                      }
-                    />
-                    <button
-                      type="button"
-                      className="absolute top-1/2 right-3 -translate-y-1/2 text-neutral-500 transition hover:text-neutral-700"
-                      onClick={() =>
-                        setShowCurrentPassword((current) => !current)
-                      }
-                      aria-label={
-                        showCurrentPassword ? 'Hide password' : 'Show password'
-                      }
-                    >
-                      {showCurrentPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                  <InputError message={passwordForm.errors.current_password} />
-                </div>
-
-                <div className="grid gap-2">
-                  <Label htmlFor="password">Password baru</Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      ref={passwordInput}
-                      name="password"
-                      type={showNewPassword ? 'text' : 'password'}
-                      autoComplete="new-password"
-                      placeholder="Password baru"
-                      className="pr-10"
-                      value={passwordForm.data.password}
-                      onChange={(event) =>
-                        passwordForm.setData('password', event.target.value)
-                      }
-                    />
-                    <button
-                      type="button"
-                      className="absolute top-1/2 right-3 -translate-y-1/2 text-neutral-500 transition hover:text-neutral-700"
-                      onClick={() => setShowNewPassword((current) => !current)}
-                      aria-label={
-                        showNewPassword ? 'Hide password' : 'Show password'
-                      }
-                    >
-                      {showNewPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                  <InputError message={passwordForm.errors.password} />
-                </div>
-
-                <div className="grid gap-2">
-                  <Label htmlFor="password_confirmation">
-                    Konfirmasi password baru
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="password_confirmation"
-                      name="password_confirmation"
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      autoComplete="new-password"
-                      placeholder="Konfirmasi password baru"
-                      className="pr-10"
-                      value={passwordForm.data.password_confirmation}
-                      onChange={(event) =>
-                        passwordForm.setData(
-                          'password_confirmation',
-                          event.target.value,
-                        )
-                      }
-                    />
-                    <button
-                      type="button"
-                      className="absolute top-1/2 right-3 -translate-y-1/2 text-neutral-500 transition hover:text-neutral-700"
-                      onClick={() =>
-                        setShowConfirmPassword((current) => !current)
-                      }
-                      aria-label={
-                        showConfirmPassword ? 'Hide password' : 'Show password'
-                      }
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                  <InputError
-                    message={passwordForm.errors.password_confirmation}
+              <div className="grid gap-1.5">
+                <Label htmlFor="current_password">Password saat ini</Label>
+                <div className="relative">
+                  <Input
+                    id="current_password"
+                    ref={currentPasswordInput}
+                    name="current_password"
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    placeholder="Password saat ini"
+                    className="pr-10"
+                    value={passwordForm.data.current_password}
+                    onChange={(event) =>
+                      passwordForm.setData(
+                        'current_password',
+                        event.target.value,
+                      )
+                    }
                   />
+                  <button
+                    type="button"
+                    className="absolute top-1/2 right-3 -translate-y-1/2 text-neutral-500 transition hover:text-neutral-700"
+                    onClick={() =>
+                      setShowCurrentPassword((current) => !current)
+                    }
+                    aria-label={
+                      showCurrentPassword ? 'Hide password' : 'Show password'
+                    }
+                  >
+                    {showCurrentPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
+                <InputError message={passwordForm.errors.current_password} />
               </div>
 
-              <div className="mt-4 flex items-center justify-end gap-3">
+              <div className="grid gap-1.5">
+                <Label htmlFor="password">Password baru</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    ref={passwordInput}
+                    name="password"
+                    type={showNewPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    placeholder="Password baru"
+                    className="pr-10"
+                    value={passwordForm.data.password}
+                    onChange={(event) =>
+                      passwordForm.setData('password', event.target.value)
+                    }
+                  />
+                  <button
+                    type="button"
+                    className="absolute top-1/2 right-3 -translate-y-1/2 text-neutral-500 transition hover:text-neutral-700"
+                    onClick={() => setShowNewPassword((current) => !current)}
+                    aria-label={
+                      showNewPassword ? 'Hide password' : 'Show password'
+                    }
+                  >
+                    {showNewPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                <InputError message={passwordForm.errors.password} />
+              </div>
+
+              <div className="grid gap-1.5">
+                <Label htmlFor="password_confirmation">
+                  Konfirmasi password baru
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="password_confirmation"
+                    name="password_confirmation"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    placeholder="Konfirmasi password baru"
+                    className="pr-10"
+                    value={passwordForm.data.password_confirmation}
+                    onChange={(event) =>
+                      passwordForm.setData(
+                        'password_confirmation',
+                        event.target.value,
+                      )
+                    }
+                  />
+                  <button
+                    type="button"
+                    className="absolute top-1/2 right-3 -translate-y-1/2 text-neutral-500 transition hover:text-neutral-700"
+                    onClick={() =>
+                      setShowConfirmPassword((current) => !current)
+                    }
+                    aria-label={
+                      showConfirmPassword ? 'Hide password' : 'Show password'
+                    }
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                <InputError
+                  message={passwordForm.errors.password_confirmation}
+                />
+              </div>
+
+              <div className="grid gap-1.5">
+                <Label htmlFor="role">Role</Label>
+                <Input
+                  id="role"
+                  value={user.role ?? 'Manajer Operasional'}
+                  readOnly
+                  className="bg-neutral-100 text-neutral-500 cursor-not-allowed dark:bg-neutral-800/50 dark:text-neutral-400"
+                />
+              </div>
+
+              <div className="mt-4 flex items-center justify-end gap-3 pt-2">
                 <Transition
                   show={saveSuccess || passwordForm.recentlySuccessful}
                   enter="transition ease-in-out"
@@ -546,19 +559,22 @@ export function UserProfileModal({ isOpen, onClose, user }: Props) {
                 >
                   <p className="text-sm text-neutral-600">Saved</p>
                 </Transition>
-                <div className="mt-3 flex items-center justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={onClose}>
-                    Batal
-                  </Button>
+                
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={onClose}
+                >
+                  Batal
+                </Button>
 
-                  <Button
-                    type="submit"
-                    disabled={passwordForm.processing || photoProcessing}
-                    className="bg-sky-600 text-white shadow-sm hover:bg-sky-500 dark:bg-amber-400 dark:text-neutral-950 dark:hover:bg-amber-300"
-                  >
-                    Simpan Perubahan
-                  </Button>
-                </div>
+                <Button
+                  type="submit"
+                  disabled={passwordForm.processing || photoProcessing}
+                  className="bg-sky-600 text-white shadow-sm hover:bg-sky-500 dark:bg-amber-400 dark:text-neutral-950 dark:hover:bg-amber-300"
+                >
+                  Simpan Perubahan
+                </Button>
               </div>
             </form>
           </div>

@@ -85,7 +85,7 @@ export default function PreviewCetakModal({
 }: Props) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="border border-neutral-200/80 bg-amber-50/70 p-6 shadow-lg sm:max-w-5xl dark:border-neutral-800/80 dark:bg-[#0a1220]">
+      <DialogContent className="border border-neutral-200/80 bg-white p-6 shadow-lg sm:max-w-5xl dark:border-neutral-800/80 dark:bg-[#0a1220]">
         <DialogHeader className="space-y-1">
           <DialogTitle className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
             Preview Cetak Laporan Peramalan
@@ -102,7 +102,7 @@ export default function PreviewCetakModal({
         ) : (
           <div className="space-y-4">
             <div className="overflow-hidden rounded-lg border border-neutral-200/80 bg-white/70 shadow-xs dark:border-neutral-800/80 dark:bg-neutral-950/40">
-              <div className="overflow-x-auto">
+              <div className="max-h-[60vh] overflow-auto">
                 <table className="min-w-full border-separate border-spacing-0 text-sm">
                   <thead className="sticky top-0 bg-slate-100/90 text-xs font-semibold text-neutral-600 uppercase backdrop-blur dark:bg-neutral-900/90 dark:text-neutral-300">
                     <tr>

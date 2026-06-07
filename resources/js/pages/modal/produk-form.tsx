@@ -11,8 +11,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { dataproduk } from '@/routes';
 import type { ProdukItem } from '@/pages/dataproduk';
+import { dataproduk } from '@/routes';
 
 type Props = {
   isOpen: boolean;
@@ -46,7 +46,7 @@ export default function ProdukFormModal({
         reset();
       }
     }
-  }, [isOpen, editData]);
+  }, [isOpen, editData, setData, reset]);
 
   const handleClose = useCallback(() => {
     reset();
@@ -90,7 +90,7 @@ export default function ProdukFormModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="border border-neutral-200/80 bg-amber-50/70 p-6 shadow-lg sm:max-w-md dark:border-neutral-800/80 dark:bg-[#0a1220]">
+      <DialogContent className="border border-neutral-200/80 bg-white p-6 shadow-lg sm:max-w-md dark:border-neutral-800/80 dark:bg-[#0a1220]">
         <DialogHeader className="space-y-1">
           <DialogTitle className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
             {isEdit ? 'Edit Data Produk' : 'Tambah Data Produk'}

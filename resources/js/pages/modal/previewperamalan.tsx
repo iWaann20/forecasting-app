@@ -79,7 +79,7 @@ export default function PreviewPeramalanModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="border border-neutral-200/80 bg-amber-50/70 p-6 shadow-lg sm:max-w-3xl dark:border-neutral-800/80 dark:bg-[#0a1220]">
+      <DialogContent className="border border-neutral-200/80 bg-white p-6 shadow-lg sm:max-w-3xl dark:border-neutral-800/80 dark:bg-[#0a1220]">
         <DialogHeader className="space-y-1">
           <DialogTitle className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
             Hasil Peramalan Periode {periodeLabel}
