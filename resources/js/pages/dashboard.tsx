@@ -41,6 +41,13 @@ type PeramalanPerPeriodeItem = {
   total: number;
 };
 
+type ProdukOption = {
+  id: string;
+  nama: string;
+  stok: number;
+  stok_minimum: number;
+};
+
 type DashboardProps = {
   totalPenjualan: number;
   totalPeramalan: number | null;
@@ -50,6 +57,7 @@ type DashboardProps = {
   penjualanPerProdukPerPeriode: PenjualanPerProdukPerPeriodeItem[];
   peramalanPerPeriode: PeramalanPerPeriodeItem[];
   peramalanPerProdukPerPeriode: PenjualanPerProdukPerPeriodeItem[];
+  produkOptions: ProdukOption[];
   tahunOptions: string[];
   filters: {
     produk?: string | null;
@@ -69,11 +77,11 @@ export default function Dashboard() {
     totalPenjualan,
     totalPeramalan,
     canSeePeramalan,
-    penjualanPerProduk,
     penjualanPerPeriode,
     penjualanPerProdukPerPeriode,
     peramalanPerPeriode,
     peramalanPerProdukPerPeriode,
+    produkOptions,
     tahunOptions,
     filters,
   } = usePage<DashboardProps>().props;
@@ -127,7 +135,6 @@ export default function Dashboard() {
     {} as Record<string, { produk: string; total: number }[]>,
   );
 
-  const produkOptions = penjualanPerProduk.map((item) => item.produk);
   const updateFilters = (next: {
     produk?: string | null;
     tahun?: string | null;
@@ -207,7 +214,7 @@ export default function Dashboard() {
                 </h2>
                 <p className="text-xs text-neutral-400">
                   Filter:{' '}
-                  {filters.produk ? filters.produk : 'Semua Produk'}{' '}
+                  {filters.produk ? produkOptions.find(p => p.id === filters.produk)?.nama ?? 'Semua Produk' : 'Semua Produk'}{' '}
                   • {filters.tahun ?? 'Semua Tahun'}
                 </p>
               </div>
@@ -231,8 +238,8 @@ export default function Dashboard() {
                       </SelectItem>
                     ) : (
                       produkOptions.map((produk) => (
-                        <SelectItem key={produk} value={produk}>
-                          {produk}
+                        <SelectItem key={produk.id} value={produk.id}>
+                          {produk.nama}
                         </SelectItem>
                       ))
                     )}
