@@ -43,7 +43,7 @@ export default function DetailPeramalanModal({ isOpen, data, onClose }: DetailPe
         <DialogHeader>
           <DialogTitle>Detail Peramalan</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-4 py-4">
+        <div className="flex flex-col gap-3 py-2 max-h-[80vh] overflow-y-auto pr-2 -mr-2">
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-neutral-500 dark:text-neutral-400">Produk</span>
             <span className="text-base text-neutral-900 dark:text-neutral-100">{data.produk}</span>
@@ -73,6 +73,12 @@ export default function DetailPeramalanModal({ isOpen, data, onClose }: DetailPe
               <span className="text-sm font-semibold text-neutral-500 dark:text-neutral-400">MSE</span>
               <span className="text-base text-neutral-900 dark:text-neutral-100">{formatDecimal(data.mse)}</span>
             </div>
+          </div>
+          <div className="bg-neutral-100 dark:bg-neutral-800 p-3 rounded-lg text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed text-justify">
+            Rekomendasi stok berdasarkan hasil peramalan adalah <strong className="text-neutral-900 dark:text-neutral-100">{formatNumber(data.nilai)}</strong> unit. 
+            Alpha <strong className="text-neutral-900 dark:text-neutral-100">{formatDecimal(data.alpha)}</strong> dipilih dari percobaan alpha 0,1–0,9 karena menghasilkan nilai kesalahan terkecil. 
+            MAD <strong className="text-neutral-900 dark:text-neutral-100">{formatDecimal(data.mad)}</strong> menunjukkan rata-rata selisih sekitar <strong className="text-neutral-900 dark:text-neutral-100">{data.mad !== null ? Math.floor(data.mad) : 0}–{data.mad !== null ? Math.floor(data.mad) + 1 : 0}</strong> unit, 
+            sedangkan MSE <strong className="text-neutral-900 dark:text-neutral-100">{formatDecimal(data.mse)}</strong> menunjukkan tingkat kesalahan peramalan secara keseluruhan.
           </div>
         </div>
         <DialogFooter className="sm:justify-end">

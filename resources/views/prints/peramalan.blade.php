@@ -129,6 +129,13 @@
         .notes-list li {
             margin-bottom: 4px;
         }
+
+        .explanation-text {
+            font-size: 11px;
+            line-height: 1.5;
+            text-align: justify;
+            margin-top: 16px;
+        }
     </style>
 </head>
 
@@ -217,6 +224,10 @@
             @endforelse
         </tbody>
     </table>
+
+    <div class="explanation-text">
+        <strong>Cara Membaca Laporan:</strong> Laporan ini menyajikan rekomendasi stok barang (kolom <strong>Nilai Peramalan</strong>) berdasarkan data historis penjualan. Sistem secara otomatis melakukan simulasi untuk mencari nilai <strong>Alpha</strong> terbaik (dari 0,1 hingga 0,9) yang menghasilkan tingkat kesalahan terkecil. Tingkat kesalahan ini diukur dengan <strong>MAD</strong> (rata-rata selisih unit) dan <strong>MSE</strong> (kesalahan keseluruhan). Semakin kecil nilai MAD dan MSE, maka angka rekomendasi stok yang dihasilkan akan semakin akurat.
+    </div>
 
     <div class="notes">
         <div class="notes-title">Keterangan:</div>
