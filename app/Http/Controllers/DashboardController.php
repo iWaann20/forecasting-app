@@ -13,7 +13,7 @@ class DashboardController extends Controller
 {
     public function __invoke(Request $request): Response
     {
-        $isPemilik = $request->user()?->role === 'Pemilik Usaha';
+        $canSeePeramalan = in_array($request->user()?->role, ['Pemilik Usaha', 'Admin']);
         $produkId = $request->query('produk');
         $tahun = $request->query('tahun');
 
@@ -26,13 +26,13 @@ class DashboardController extends Controller
 
         $peramalanPerPeriode = [];
         $peramalanPerProdukPerPeriode = [];
-        if ($isPemilik) {
+        if ($canSeePeramalan) {
             $driver = DB::connection()->getDriverName();
 
             $periodeExpression = match ($driver) {
-                'pgsql' => "to_char(periode_awal, 'YYYY-MM')",
-                'sqlite' => "strftime('%Y-%m', periode_awal)",
-                default => "DATE_FORMAT(periode_awal, '%Y-%m')",
+                'pgsql' => "to_char(data_peramalan.periode, 'YYYY-MM')",
+                'sqlite' => "strftime('%Y-%m', data_peramalan.periode)",
+                default => "DATE_FORMAT(data_peramalan.periode, '%Y-%m')",
             };
 
             $baseQuery = DataPeramalan::with('produk');
@@ -42,17 +42,17 @@ class DashboardController extends Controller
             }
 
             if ($tahun) {
-                $baseQuery->whereYear('periode_awal', $tahun);
+                $baseQuery->whereYear('data_peramalan.periode', $tahun);
             }
 
             // Total per periode
             $peramalanPerPeriode = (clone $baseQuery)
                 ->select(DB::raw("{$periodeExpression} as periode"), DB::raw('SUM(nilai_peramalan) as total'))
-                ->groupBy('periode')
+                ->groupBy(DB::raw($periodeExpression))
                 ->orderBy('periode')
                 ->get()
                 ->map(fn ($row) => [
-                    'periode' => $row->periode,
+                    'periode' => $row->getRawOriginal('periode') ?? (is_object($row->periode) ? $row->periode->format('Y-m') : $row->periode),
                     'total' => (int) $row->total,
                 ])
                 ->all();
@@ -64,11 +64,11 @@ class DashboardController extends Controller
                     'produk_id',
                     DB::raw('SUM(nilai_peramalan) as total'),
                 )
-                ->groupBy('periode', 'produk_id')
+                ->groupBy(DB::raw($periodeExpression), 'produk_id')
                 ->orderBy('periode')
                 ->get()
                 ->map(fn ($row) => [
-                    'periode' => $row->periode,
+                    'periode' => $row->getRawOriginal('periode') ?? (is_object($row->periode) ? $row->periode->format('Y-m') : $row->periode),
                     'produk' => $row->produk->nama_produk,
                     'total' => (int) $row->total,
                 ])
@@ -79,7 +79,7 @@ class DashboardController extends Controller
 
         return Inertia::render('dashboard', [
             'totalPenjualan' => DataPenjualan::count(),
-            'totalPeramalan' => $isPemilik ? DataPeramalan::count() : null,
+            'totalPeramalan' => $canSeePeramalan ? DataPeramalan::count() : null,
             'penjualanPerProduk' => PenjualanController::totalPerProduk($tahun),
             'penjualanPerPeriode' => PenjualanController::totalPerPeriode($produkId, $tahun),
             'penjualanPerProdukPerPeriode' => PenjualanController::totalPerProdukPerPeriode($tahun),
@@ -91,7 +91,7 @@ class DashboardController extends Controller
                 'produk' => $produkId,
                 'tahun' => $tahun,
             ],
-            'canSeePeramalan' => $isPemilik,
+            'canSeePeramalan' => $canSeePeramalan,
         ]);
     }
 }
