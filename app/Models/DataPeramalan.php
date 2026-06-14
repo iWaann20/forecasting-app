@@ -18,6 +18,7 @@ class DataPeramalan extends Model
     protected $fillable = [
         'peramalan_id',
         'produk_id',
+        'periode',
         'periode_awal',
         'periode_akhir',
         'nilai_peramalan',
@@ -27,6 +28,7 @@ class DataPeramalan extends Model
     ];
 
     protected $casts = [
+        'periode' => 'date',
         'periode_awal' => 'date',
         'periode_akhir' => 'date',
         'nilai_peramalan' => 'integer',

@@ -60,10 +60,11 @@ type DataPenjualanProps = {
     bulan?: string | null;
     tahun?: string | null;
   };
+  canManage: boolean;
 };
 
 export default function DataPenjualan() {
-  const { penjualan, produkOptions, bulanOptions, tahunOptions, filters } =
+  const { penjualan, produkOptions, bulanOptions, tahunOptions, filters, canManage } =
     usePage<DataPenjualanProps>().props;
   const [showTambahModal, setShowTambahModal] = useState(false);
   const [editData, setEditData] = useState<PenjualanItem | null>(null);
@@ -250,15 +251,17 @@ export default function DataPenjualan() {
                 </SelectContent>
               </Select>
             </div>
-            <Button
-              className="h-9 cursor-pointer bg-sky-600 text-white shadow-sm hover:bg-sky-500 dark:bg-amber-400 dark:text-neutral-950 dark:hover:bg-amber-300"
-              onClick={() => {
-                setEditData(null);
-                setShowTambahModal(true);
-              }}
-            >
-              Tambah
-            </Button>
+            {canManage && (
+              <Button
+                className="h-9 cursor-pointer bg-sky-600 text-white shadow-sm hover:bg-sky-500 dark:bg-amber-400 dark:text-neutral-950 dark:hover:bg-amber-300"
+                onClick={() => {
+                  setEditData(null);
+                  setShowTambahModal(true);
+                }}
+              >
+                Tambah
+              </Button>
+            )}
           </div>
 
           <div className="mt-4 overflow-hidden rounded-lg border border-neutral-200/80 bg-white/70 shadow-xs dark:border-neutral-800/80 dark:bg-neutral-950/40">
@@ -270,7 +273,7 @@ export default function DataPenjualan() {
                     <th className="px-3 py-2.5 text-left">Tanggal</th>
                     <th className="px-3 py-2.5 text-left">Produk</th>
                     <th className="px-3 py-2.5 text-right">Jumlah</th>
-                    <th className="px-3 py-2.5 text-center">Aksi</th>
+                    {canManage && <th className="px-3 py-2.5 text-center">Aksi</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
@@ -301,26 +304,28 @@ export default function DataPenjualan() {
                         <td className="px-3 py-2.5 text-right text-neutral-700 dark:text-neutral-200">
                           {row.jumlah}
                         </td>
-                        <td className="px-3 py-2.5 text-center">
-                          <div className="flex justify-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8 border-sky-200 text-sky-600 hover:border-sky-300 hover:text-sky-700 dark:border-sky-900/50 dark:text-sky-300"
-                              onClick={() => handleEdit(row)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8 border-rose-200 text-rose-600 hover:border-rose-300 hover:text-rose-700 dark:border-rose-900/50 dark:text-rose-300"
-                              onClick={() => handleDelete(row.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </td>
+                        {canManage && (
+                          <td className="px-3 py-2.5 text-center">
+                            <div className="flex justify-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-sky-200 text-sky-600 hover:border-sky-300 hover:text-sky-700 dark:border-sky-900/50 dark:text-sky-300"
+                                onClick={() => handleEdit(row)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-rose-200 text-rose-600 hover:border-rose-300 hover:text-rose-700 dark:border-rose-900/50 dark:text-rose-300"
+                                onClick={() => handleDelete(row.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        )}
                       </tr>
                     ))
                   )}
@@ -362,15 +367,17 @@ export default function DataPenjualan() {
           )}
         </div>
       </div>
-      <TambahPenjualanModal
-        isOpen={showTambahModal}
-        onClose={() => {
-          setShowTambahModal(false);
-          setEditData(null);
-        }}
-        produkOptions={produkOptions}
-        editData={editData}
-      />
+      {canManage && (
+        <TambahPenjualanModal
+          isOpen={showTambahModal}
+          onClose={() => {
+            setShowTambahModal(false);
+            setEditData(null);
+          }}
+          produkOptions={produkOptions}
+          editData={editData}
+        />
+      )}
     </AppLayout>
   );
 }

@@ -5,7 +5,7 @@ export type User = {
   avatar?: string;
   foto_profil_url?: string;
   email_verified_at: string | null;
-  role?: string;
+  role?: 'Admin' | 'Pemilik Usaha' | 'Staff';
   two_factor_enabled?: boolean;
   created_at: string;
   updated_at: string;

@@ -55,6 +55,7 @@ class PenjualanController extends Controller
                 'bulan' => $bulan,
                 'tahun' => $tahun,
             ],
+            'canManage' => $request->user()?->role !== 'Admin',
         ]);
     }
 

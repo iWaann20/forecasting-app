@@ -7,6 +7,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\PeramalanController;
 use App\Http\Controllers\PenggunaController;
+use App\Http\Controllers\DataPenggunaController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\RestockController;
 use App\Http\Controllers\NotifikasiController;
@@ -37,16 +38,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('dataproduk/{produk}', [ProdukController::class, 'destroy'])->name('dataproduk.destroy');
     });
 
+    Route::middleware('role:Admin')->group(function () {
+        Route::get('datapengguna', [DataPenggunaController::class, 'index'])->name('datapengguna');
+        Route::post('datapengguna', [DataPenggunaController::class, 'store'])->name('datapengguna.store');
+        Route::patch('datapengguna/{pengguna}/role', [DataPenggunaController::class, 'updateRole'])->name('datapengguna.updateRole');
+        Route::delete('datapengguna/{pengguna}', [DataPenggunaController::class, 'destroy'])->name('datapengguna.destroy');
+    });
+
     Route::get('datastok', [RestockController::class, 'index'])->name('datastok');
-    Route::post('datastok', [RestockController::class, 'store'])->name('datastok.store');
-    Route::patch('datastok/{stok}', [RestockController::class, 'update'])->name('datastok.update');
-    Route::delete('datastok/{stok}', [RestockController::class, 'destroy'])->name('datastok.destroy');
+    Route::middleware('role:Pemilik Usaha,Staff')->group(function () {
+        Route::post('datastok', [RestockController::class, 'store'])->name('datastok.store');
+        Route::patch('datastok/{stok}', [RestockController::class, 'update'])->name('datastok.update');
+        Route::delete('datastok/{stok}', [RestockController::class, 'destroy'])->name('datastok.destroy');
+    });
 
     Route::get('datapenjualan', [PenjualanController::class, 'index'])->name('datapenjualan');
-    Route::post('datapenjualan', [PenjualanController::class, 'store'])->name('datapenjualan.store');
-    Route::patch('datapenjualan/{penjualan}', [PenjualanController::class, 'update'])->name('datapenjualan.update');
     Route::get('datapenjualan/check', [PenjualanController::class, 'checkRange'])->name('datapenjualan.check');
-    Route::delete('datapenjualan/{penjualan}', [PenjualanController::class, 'destroy'])->name('datapenjualan.destroy');
+    Route::middleware('role:Pemilik Usaha,Staff')->group(function () {
+        Route::post('datapenjualan', [PenjualanController::class, 'store'])->name('datapenjualan.store');
+        Route::patch('datapenjualan/{penjualan}', [PenjualanController::class, 'update'])->name('datapenjualan.update');
+        Route::delete('datapenjualan/{penjualan}', [PenjualanController::class, 'destroy'])->name('datapenjualan.destroy');
+    });
 
     Route::get('api/notifikasi', [NotifikasiController::class, 'getLatest'])->name('notifikasi.index');
     Route::post('api/notifikasi/read-all', [NotifikasiController::class, 'markAllAsRead'])->name('notifikasi.read_all');
@@ -57,21 +69,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('profile/photo', [PenggunaController::class, 'deleteProfile'])->name('profile.photo.delete');
 });
 
-Route::middleware(['auth', 'verified', 'role:Pemilik Usaha'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:Pemilik Usaha,Admin'])->group(function () {
     Route::get('dataperamalan', [PeramalanController::class, 'index'])
         ->name('dataperamalan');
-    Route::post('dataperamalan/hitung', [PeramalanController::class, 'hitung'])
-        ->name('dataperamalan.hitung');
-    Route::post('dataperamalan/preview/simpan', [PeramalanController::class, 'simpan'])
-        ->name('dataperamalan.preview.simpan');
-    Route::post('dataperamalan/preview/batal', [PeramalanController::class, 'batal'])
-        ->name('dataperamalan.preview.batal');
     Route::post('dataperamalan/cetak/preview', [PeramalanController::class, 'cetakPreview'])
         ->name('dataperamalan.cetak.preview');
     Route::post('dataperamalan/cetak/batal', [PeramalanController::class, 'cetakBatal'])
         ->name('dataperamalan.cetak.batal');
     Route::get('dataperamalan/cetak', [PeramalanController::class, 'cetak'])
         ->name('dataperamalan.cetak');
+});
+
+Route::middleware(['auth', 'verified', 'role:Pemilik Usaha'])->group(function () {
+    Route::post('dataperamalan/hitung', [PeramalanController::class, 'hitung'])
+        ->name('dataperamalan.hitung');
+    Route::post('dataperamalan/preview/simpan', [PeramalanController::class, 'simpan'])
+        ->name('dataperamalan.preview.simpan');
+    Route::post('dataperamalan/preview/batal', [PeramalanController::class, 'batal'])
+        ->name('dataperamalan.preview.batal');
     Route::delete('dataperamalan/{peramalan}', [PeramalanController::class, 'destroy'])
         ->name('dataperamalan.destroy');
 });

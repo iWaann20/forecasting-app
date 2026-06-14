@@ -20,7 +20,8 @@ class Pengguna extends Authenticatable
     protected $fillable = [
         'username',
         'password',
-        'foto_profil'
+        'foto_profil',
+        'role',
     ];
 
     protected $hidden = [

@@ -8,6 +8,7 @@ import {
   Moon,
   Package,
   Sun,
+  Users,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
@@ -56,6 +57,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
   const page = usePage<SharedData>();
   const { auth } = page.props;
   const isPemilik = auth?.user?.role === 'Pemilik Usaha';
+  const isAdmin = auth?.user?.role === 'Admin';
 
   const navItems: NavItem[] = [
     {
@@ -63,6 +65,15 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
       href: dashboard().url,
       icon: LayoutGrid,
     },
+    ...(isAdmin
+      ? [
+          {
+            title: 'Data Pengguna',
+            href: '/datapengguna',
+            icon: Users,
+          },
+        ]
+      : []),
     {
       title: 'Data Produk',
       href: dataproduk().url,
@@ -78,7 +89,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
       href: datapenjualan().url,
       icon: ChartLine,
     },
-    ...(isPemilik
+    ...(isPemilik || isAdmin
       ? [
           {
             title: 'Data Peramalan',

@@ -12,7 +12,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard, datapenjualan, dataperamalan, dataproduk, datastok } from '@/routes';
+import { dashboard, datapenjualan, dataperamalan, dataproduk, datastok, datapengguna } from '@/routes';
 import type { NavItem, SharedData } from '@/types';
 import AppLogo from './app-logo';
 
@@ -32,6 +32,7 @@ const footerNavItems: NavItem[] = [
 export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
     const isPemilik = auth?.user?.role === 'Pemilik Usaha';
+    const isAdmin = auth?.user?.role === 'Admin';
 
     const mainNavItems: NavItem[] = [
         {
@@ -39,6 +40,15 @@ export function AppSidebar() {
             href: dashboard(),
             icon: LayoutGrid,
         },
+        ...(isAdmin
+            ? [
+                  {
+                      title: 'Data Pengguna',
+                      href: datapengguna().url,
+                      icon: Folder,
+                  },
+              ]
+            : []),
         {
             title: 'Data Produk',
             href: dataproduk().url,
@@ -54,7 +64,7 @@ export function AppSidebar() {
             href: datapenjualan().url,
             icon: ShoppingCart,
         },
-        ...(isPemilik
+        ...(isPemilik || isAdmin
             ? [
                   {
                       title: 'Data Peramalan',

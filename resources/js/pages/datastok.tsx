@@ -11,9 +11,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
+import StokFormModal from '@/pages/modal/stok-form';
 import { datastok } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
-import StokFormModal from '@/pages/modal/stok-form';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -58,10 +58,11 @@ type DataStokProps = {
     bulan?: string | null;
     tahun?: string | null;
   };
+  canManage: boolean;
 };
 
 export default function DataStok() {
-  const { restock, produkOptions, bulanOptions, tahunOptions, filters } =
+  const { restock, produkOptions, bulanOptions, tahunOptions, filters, canManage } =
     usePage<DataStokProps>().props;
   const [showModal, setShowModal] = useState(false);
   const [editData, setEditData] = useState<StokItem | null>(null);
@@ -248,15 +249,17 @@ export default function DataStok() {
                 </SelectContent>
               </Select>
             </div>
-            <Button
-              className="h-9 cursor-pointer bg-sky-600 text-white shadow-sm hover:bg-sky-500 dark:bg-amber-400 dark:text-neutral-950 dark:hover:bg-amber-300"
-              onClick={() => {
-                setEditData(null);
-                setShowModal(true);
-              }}
-            >
-              Tambah
-            </Button>
+            {canManage && (
+              <Button
+                className="h-9 cursor-pointer bg-sky-600 text-white shadow-sm hover:bg-sky-500 dark:bg-amber-400 dark:text-neutral-950 dark:hover:bg-amber-300"
+                onClick={() => {
+                  setEditData(null);
+                  setShowModal(true);
+                }}
+              >
+                Tambah
+              </Button>
+            )}
           </div>
 
           <div className="mt-4 overflow-hidden rounded-lg border border-neutral-200/80 bg-white/70 shadow-xs dark:border-neutral-800/80 dark:bg-neutral-950/40">
@@ -268,7 +271,7 @@ export default function DataStok() {
                     <th className="px-3 py-2.5 text-left">Tanggal</th>
                     <th className="px-3 py-2.5 text-left">Produk</th>
                     <th className="px-3 py-2.5 text-right">Jumlah</th>
-                    <th className="px-3 py-2.5 text-center">Aksi</th>
+                    {canManage && <th className="px-3 py-2.5 text-center">Aksi</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
@@ -299,26 +302,28 @@ export default function DataStok() {
                         <td className="px-3 py-2.5 text-right text-neutral-700 dark:text-neutral-200">
                           {row.jumlah}
                         </td>
-                        <td className="px-3 py-2.5 text-center">
-                          <div className="flex justify-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8 border-sky-200 text-sky-600 hover:border-sky-300 hover:text-sky-700 dark:border-sky-900/50 dark:text-sky-300"
-                              onClick={() => handleEdit(row)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8 border-rose-200 text-rose-600 hover:border-rose-300 hover:text-rose-700 dark:border-rose-900/50 dark:text-rose-300"
-                              onClick={() => handleDelete(row.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </td>
+                        {canManage && (
+                          <td className="px-3 py-2.5 text-center">
+                            <div className="flex justify-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-sky-200 text-sky-600 hover:border-sky-300 hover:text-sky-700 dark:border-sky-900/50 dark:text-sky-300"
+                                onClick={() => handleEdit(row)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-rose-200 text-rose-600 hover:border-rose-300 hover:text-rose-700 dark:border-rose-900/50 dark:text-rose-300"
+                                onClick={() => handleDelete(row.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        )}
                       </tr>
                     ))
                   )}
@@ -360,15 +365,17 @@ export default function DataStok() {
           )}
         </div>
       </div>
-      <StokFormModal
-        isOpen={showModal}
-        onClose={() => {
-          setShowModal(false);
-          setEditData(null);
-        }}
-        produkOptions={produkOptions}
-        editData={editData}
-      />
+      {canManage && (
+        <StokFormModal
+          isOpen={showModal}
+          onClose={() => {
+            setShowModal(false);
+            setEditData(null);
+          }}
+          produkOptions={produkOptions}
+          editData={editData}
+        />
+      )}
     </AppLayout>
   );
 }

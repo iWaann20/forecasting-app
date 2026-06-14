@@ -72,6 +72,7 @@ type DataPeramalanProps = {
     bulan?: string | null;
     tahun?: string | null;
   };
+  canManage: boolean;
 };
 
 type PreviewItem = {
@@ -121,6 +122,7 @@ export default function DataPeramalan() {
     filters,
     preview,
     cetakPreview,
+    canManage,
   } = usePage<DataPeramalanProps>().props;
   const [showHitungModal, setShowHitungModal] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(Boolean(preview));
@@ -398,20 +400,22 @@ export default function DataPeramalan() {
               </Select>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    className="h-9 cursor-pointer bg-sky-600 text-white shadow-sm hover:bg-sky-500 dark:bg-amber-400 dark:text-neutral-950 dark:hover:bg-amber-300"
-                    onClick={() => setShowHitungModal(true)}
-                  >
-                    <Calculator className="h-4 w-4" />
-                    Hitung Peramalan
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Input periode awal dan periode akhir minimal rentang 2 bulan.
-                </TooltipContent>
-              </Tooltip>
+              {canManage && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      className="h-9 cursor-pointer bg-sky-600 text-white shadow-sm hover:bg-sky-500 dark:bg-amber-400 dark:text-neutral-950 dark:hover:bg-amber-300"
+                      onClick={() => setShowHitungModal(true)}
+                    >
+                      <Calculator className="h-4 w-4" />
+                      Hitung Peramalan
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Input periode awal dan periode akhir minimal rentang 2 bulan.
+                  </TooltipContent>
+                </Tooltip>
+              )}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -480,14 +484,16 @@ export default function DataPeramalan() {
                             >
                               <Info className="h-4 w-4" />
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8 border-rose-200 text-rose-600 hover:border-rose-300 hover:text-rose-700 dark:border-rose-900/50 dark:text-rose-300"
-                              onClick={() => handleDelete(row.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            {canManage && (
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-rose-200 text-rose-600 hover:border-rose-300 hover:text-rose-700 dark:border-rose-900/50 dark:text-rose-300"
+                                onClick={() => handleDelete(row.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -531,10 +537,12 @@ export default function DataPeramalan() {
           )}
         </div>
       </div>
-      <HitungPeramalanModal
-        isOpen={showHitungModal}
-        onClose={() => setShowHitungModal(false)}
-      />
+      {canManage && (
+        <HitungPeramalanModal
+          isOpen={showHitungModal}
+          onClose={() => setShowHitungModal(false)}
+        />
+      )}
       <PreviewPeramalanModal
         isOpen={showPreviewModal}
         preview={preview}

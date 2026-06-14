@@ -30,7 +30,6 @@ class PeramalanService
 		$start = Carbon::parse($periodeAwal)->startOfMonth();
 		$end = Carbon::parse($periodeAkhir)->endOfMonth();
 		$forecastStart = $end->copy()->addMonthNoOverflow()->startOfMonth();
-		$forecastEnd = $end->copy()->addMonthNoOverflow()->endOfMonth();
 		$results = [];
 
 		foreach ($this->produkList() as $produkId) {
@@ -38,14 +37,13 @@ class PeramalanService
 				$produkId,
 				$start,
 				$end,
-				$forecastStart,
-				$forecastEnd,
+				$forecastStart
 			);
 		}
 
 		return [
-			'periode_awal' => $forecastStart->toDateString(),
-			'periode_akhir' => $forecastEnd->toDateString(),
+			'periode_awal' => $start->toDateString(),
+			'periode_akhir' => $end->toDateString(),
 			'items' => $results,
 		];
 	}
@@ -67,8 +65,7 @@ class PeramalanService
 		string $produkId,
 		Carbon $start,
 		Carbon $end,
-		Carbon $forecastStart,
-		Carbon $forecastEnd,
+		Carbon $forecastStart
 	): array {
 		$periodeList = $this->buildPeriodeList($start, $end);
 		$actuals = $this->loadActuals($produkId, $start, $end, $periodeList);
@@ -122,8 +119,9 @@ class PeramalanService
 
 		return [
 			'peramalan_id' => (string) Str::uuid(),
-			'periode_awal' => $forecastStart->toDateString(),
-			'periode_akhir' => $forecastEnd->toDateString(),
+			'periode' => $forecastStart->toDateString(),
+			'periode_awal' => $start->toDateString(),
+			'periode_akhir' => $end->toDateString(),
 			'produk_id' => $produkId,
 			'nama_produk' => $produk ? $produk->nama_produk : 'Unknown', // for preview only
 			'nilai_peramalan' => $nextForecast !== null ? (int) round($nextForecast) : 0,

@@ -42,7 +42,7 @@ class PeramalanController extends Controller
             ->through(fn ($row) => [
                 'id' => $row->peramalan_id,
                 'produk_id' => $row->produk_id,
-                'periode' => $row->periode_awal?->format('Y-m'),
+                'periode' => $row->periode?->format('Y-m') ?? $row->periode_awal?->format('Y-m'), // Fallback to periode_awal if periode is null for older records
                 'periode_awal' => $row->periode_awal?->format('Y-m'),
                 'periode_akhir' => $row->periode_akhir?->format('Y-m'),
                 'produk' => $row->produk->nama_produk,
@@ -64,6 +64,7 @@ class PeramalanController extends Controller
                 'bulan' => $bulan,
                 'tahun' => $tahun,
             ],
+            'canManage' => $request->user()?->role === 'Pemilik Usaha',
         ]);
     }
 
@@ -134,7 +135,7 @@ class PeramalanController extends Controller
             ->get()
             ->map(fn ($row) => [
                 'id' => $row->peramalan_id,
-                'periode' => $row->periode_awal?->format('Y-m'),
+                'periode' => $row->periode?->format('Y-m') ?? $row->periode_awal?->format('Y-m'),
                 'produk' => $row->produk->nama_produk,
                 'alpha' => $row->alpha !== null ? (float) $row->alpha : null,
                 'mse' => $row->mse !== null ? (float) $row->mse : null,
@@ -234,7 +235,7 @@ class PeramalanController extends Controller
             ->get()
             ->map(fn ($row) => [
                 'id' => $row->peramalan_id,
-                'periode' => $row->periode_awal?->format('Y-m'),
+                'periode' => $row->periode?->format('Y-m') ?? $row->periode_awal?->format('Y-m'),
                 'produk' => $row->produk->nama_produk,
                 'alpha' => $row->alpha !== null ? (float) $row->alpha : null,
                 'mse' => $row->mse !== null ? (float) $row->mse : null,

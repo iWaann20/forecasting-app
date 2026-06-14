@@ -39,8 +39,8 @@ class StokService
 
     public static function notifyPemilikActivity(string $tipe, string $judul, string $pesan, string $referenceType, string $referenceId)
     {
-        // Only notify 'Pemilik Usaha' role
-        $pemiliks = Pengguna::where('role', 'Pemilik Usaha')->get();
+        // Only notify 'Pemilik Usaha' and 'Admin' role
+        $pemiliks = Pengguna::whereIn('role', ['Pemilik Usaha', 'Admin'])->get();
 
         foreach ($pemiliks as $pemilik) {
             Notifikasi::create([

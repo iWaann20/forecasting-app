@@ -126,7 +126,9 @@ export default function Dashboard() {
     {} as Record<string, { produk: string; total: number }[]>,
   );
 
-  const peramalanProdukPerPeriodeMap = (peramalanPerProdukPerPeriode ?? []).reduce(
+  const peramalanProdukPerPeriodeMap = (
+    peramalanPerProdukPerPeriode ?? []
+  ).reduce(
     (acc, item) => {
       acc[item.periode] = acc[item.periode] ?? [];
       acc[item.periode].push({ produk: item.produk, total: item.total });
@@ -205,7 +207,9 @@ export default function Dashboard() {
           )}
         </div>
 
-        <div className={`grid gap-4 ${canSeePeramalan ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+        <div
+          className={`grid gap-4 ${canSeePeramalan ? 'lg:grid-cols-2' : 'grid-cols-1'}`}
+        >
           <div className="rounded-xl border border-sidebar-border/80 bg-gradient-to-br from-white via-slate-100/70 to-amber-100/50 p-4 shadow-md ring-1 ring-black/10 dark:border-sidebar-border dark:bg-gradient-to-br dark:from-neutral-950 dark:via-slate-900/70 dark:to-slate-900/80 dark:ring-white/20">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -214,7 +218,10 @@ export default function Dashboard() {
                 </h2>
                 <p className="text-xs text-neutral-400">
                   Filter:{' '}
-                  {filters.produk ? produkOptions.find(p => p.id === filters.produk)?.nama ?? 'Semua Produk' : 'Semua Produk'}{' '}
+                  {filters.produk
+                    ? (produkOptions.find((p) => p.id === filters.produk)
+                        ?.nama ?? 'Semua Produk')
+                    : 'Semua Produk'}{' '}
                   • {filters.tahun ?? 'Semua Tahun'}
                 </p>
               </div>
@@ -300,7 +307,10 @@ export default function Dashboard() {
                           y2="1"
                         >
                           <stop offset="0%" stopColor="var(--chart-bar)" />
-                          <stop offset="100%" stopColor="var(--chart-bar-soft)" />
+                          <stop
+                            offset="100%"
+                            stopColor="var(--chart-bar-soft)"
+                          />
                         </linearGradient>
                       </defs>
                       <CartesianGrid
@@ -425,7 +435,10 @@ export default function Dashboard() {
                             y2="1"
                           >
                             <stop offset="0%" stopColor="var(--chart-bar)" />
-                            <stop offset="100%" stopColor="var(--chart-bar-soft)" />
+                            <stop
+                              offset="100%"
+                              stopColor="var(--chart-bar-soft)"
+                            />
                           </linearGradient>
                         </defs>
                         <CartesianGrid
@@ -460,7 +473,9 @@ export default function Dashboard() {
                             const produkTotals = periode
                               ? (peramalanProdukPerPeriodeMap[periode] ?? [])
                               : [];
-                            const total = payload[0]?.value as number | undefined;
+                            const total = payload[0]?.value as
+                              | number
+                              | undefined;
 
                             return (
                               <div className="rounded-lg border border-neutral-200 bg-white/95 p-3 text-xs shadow-sm backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95">
